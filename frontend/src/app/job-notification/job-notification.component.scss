@@ -1,0 +1,14 @@
+.job-notification-container {
+  display: inline-block;
+  margin-right: 16px;
+}
+
+.job-item {
+  display: flex;
+  flex-direction: column;
+  width: 250px;
+}
+
+.job-item > div {
+  margin-bottom: 4px;
+}

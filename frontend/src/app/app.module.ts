@@ -19,7 +19,14 @@ import { MatIconModule } from "@angular/material/icon";
 import { MatSnackBarModule } from "@angular/material/snack-bar";
 import { MatSelectModule } from "@angular/material/select";
 import { TicketNotFoundComponent } from './ticket-not-found/ticket-not-found.component';
-import { ReactiveFormsModule } from '@angular/forms';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {BulkReplyComponent} from "./bulk-reply/bulk-reply.component";
+import {JobNotificationComponent} from "./job-notification/job-notification.component";
+import {MatDialogModule} from "@angular/material/dialog";
+import {MatCheckboxModule} from "@angular/material/checkbox";
+import {MatBadgeModule} from "@angular/material/badge";
+import {MatMenuModule} from "@angular/material/menu";
+import {MatProgressBarModule} from "@angular/material/progress-bar";
 
 @NgModule({
   declarations: [
@@ -28,6 +35,8 @@ import { ReactiveFormsModule } from '@angular/forms';
     TicketsListComponent,
     TicketComponent,
     TicketNotFoundComponent,
+    BulkReplyComponent,
+    JobNotificationComponent
   ],
   imports: [
     BrowserModule,
@@ -43,6 +52,12 @@ import { ReactiveFormsModule } from '@angular/forms';
     MatIconModule,
     MatSnackBarModule,
     MatSelectModule,
+    MatDialogModule,
+    MatCheckboxModule,
+    FormsModule,
+    MatBadgeModule,
+    MatMenuModule,
+    MatProgressBarModule,
   ],
   providers: [
     importProvidersFrom(HttpClientModule),

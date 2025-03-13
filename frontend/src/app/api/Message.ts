@@ -1,4 +1,5 @@
 export type Ticket = {
+  selected: boolean;
   id: number;
   subject: string;
   status: "unresolved" | "resolved";

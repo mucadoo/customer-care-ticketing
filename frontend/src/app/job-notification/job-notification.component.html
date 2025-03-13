@@ -1,0 +1,25 @@
+<div class="job-notification-container">
+  <button mat-icon-button [matBadge]="activeJobCount" matBadgeColor="warn" [matMenuTriggerFor]="jobMenu">
+    <mat-icon>notifications</mat-icon>
+  </button>
+
+  <mat-menu #jobMenu="matMenu">
+    <ng-container *ngIf="(jobs$ | async) as jobs">
+      <ng-container *ngIf="getUnarchived(jobs).length > 0; else noJobs">
+        <ng-container *ngFor="let job of getUnarchived(jobs); trackBy: trackByJob">
+          <button mat-menu-item>
+            <div class="job-item">
+              <div><strong>Job ID:</strong> {{ job.jobId }}</div>
+              <div><strong>Status:</strong> {{ job.state }}</div>
+              <mat-progress-bar mode="determinate" [value]="job.progress"></mat-progress-bar>
+              <button mat-button color="warn" (click)="dismissJob(job.jobId)">Dismiss</button>
+            </div>
+          </button>
+        </ng-container>
+      </ng-container>
+      <ng-template #noJobs>
+        <button mat-menu-item>No active jobs</button>
+      </ng-template>
+    </ng-container>
+  </mat-menu>
+</div>

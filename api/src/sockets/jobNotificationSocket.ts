@@ -29,35 +29,35 @@ export class JobNotificationSocket {
   private initialize(): void {
     this.io.on("connection", (socket: Socket) => {
       console.log(`Client connected: ${socket.id}`);
-      socket.on("subscribeSeller", (sellerId: string) => {
-        console.log(`Socket ${socket.id} subscribed to sellerId: ${sellerId}`);
-        socket.join(sellerId);
+      socket.on("subscribeSender", (senderId: string) => {
+        console.log(`Socket ${socket.id} subscribed to senderId: ${senderId}`);
+        socket.join(senderId);
       });
     });
 
     this.bulkReplyQueueEvents.on("progress", async ({ jobId, data }) => {
       console.log(`Job ${jobId} progress: ${data}`);
       const progressValue: number = typeof data === "number" ? data : 0;
-      await this.broadcastToSeller({ event: "progress", jobId, progress: progressValue });
+      await this.broadcastToSender({ event: "progress", jobId, progress: progressValue });
     });
 
     this.bulkReplyQueueEvents.on("completed", async ({ jobId, returnvalue }) => {
       console.log(`Job ${jobId} completed`);
-      await this.broadcastToSeller({ event: "completed", jobId, result: returnvalue });
+      await this.broadcastToSender({ event: "completed", jobId, result: returnvalue });
     });
 
     this.bulkReplyQueueEvents.on("failed", async ({ jobId, failedReason }) => {
       console.log(`Job ${jobId} failed: ${failedReason}`);
-      await this.broadcastToSeller({ event: "failed", jobId, failedReason });
+      await this.broadcastToSender({ event: "failed", jobId, failedReason });
     });
   }
 
-  private async broadcastToSeller(eventData: BroadcastEventData): Promise<void> {
+  private async broadcastToSender(eventData: BroadcastEventData): Promise<void> {
     const job = await this.bulkReplyQueue.getJob(eventData.jobId);
     if (!job) return;
-    const { sellerId } = job.data;
-    if (!sellerId) return;
-    const message = { ...eventData, sellerId };
-    this.io.to(sellerId).emit("jobUpdate", message);
+    const { senderId } = job.data;
+    if (!senderId) return;
+    const message = { ...eventData, senderId };
+    this.io.to(senderId).emit("jobUpdate", message);
   }
 }

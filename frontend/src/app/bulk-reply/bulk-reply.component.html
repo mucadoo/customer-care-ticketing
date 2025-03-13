@@ -1,0 +1,15 @@
+<h2 mat-dialog-title>Bulk Reply</h2>
+<form [formGroup]="bulkReplyForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content>
+    <mat-form-field appearance="fill" style="width: 100%;">
+      <mat-label>Message</mat-label>
+      <textarea matInput formControlName="text"></textarea>
+    </mat-form-field>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">Cancel</button>
+    <button mat-raised-button color="primary" type="submit" [disabled]="bulkReplyForm.invalid">
+      Send
+    </button>
+  </mat-dialog-actions>
+</form>
