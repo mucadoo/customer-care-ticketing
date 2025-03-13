@@ -20,10 +20,7 @@ export class JobNotificationComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Connect to the WebSocket server using the current sender id.
     this.jobWsService.connect(this.currentSenderId);
-
-    // Subscribe to job notifications to update the active job count.
     this.subscription = this.jobStateService.jobs$.subscribe(jobs => {
       this.activeJobCount = jobs.filter(job =>
         !job.archived && job.state !== 'completed'

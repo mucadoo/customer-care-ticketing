@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
-import { map } from 'rxjs';
+import {map, Observable} from 'rxjs';
 import {ApiTicket} from "../models/api-ticket.model";
 import {ApiMessage} from "../models/message.model";
 import {Message} from "../models/api-message.model";
@@ -60,6 +60,18 @@ export class TicketsService {
         ...other,
         createdAt: new Date(createdAt),
       })),
+    );
+  }
+
+  sendBulkReply(payload: {
+    ticketIds: number[];
+    senderType: 'operator' | 'customer';
+    senderId: string;
+    text: string;
+  }): Observable<{ jobId: string }> {
+    return this.http.post<{ jobId: string }>(
+      `${this.baseUrl}/tickets/bulk-reply`,
+      payload
     );
   }
 

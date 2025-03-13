@@ -1,40 +1,38 @@
 import { Injectable } from '@angular/core';
-import { JobStateService } from './job-state.service';
+import { io, Socket } from 'socket.io-client';
+import { JobStateService, JobNotification } from './job-state.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class JobWebSocketService {
-  private ws: WebSocket | null = null;
+  private socket!: Socket;
 
   constructor(private jobStateService: JobStateService) {}
 
-  connect(senderId: string): void {
-    if (this.ws) {
-      this.ws.close();
+  connect(sellerId: string): void {
+    if (this.socket) {
+      this.socket.disconnect();
     }
-    this.ws = new WebSocket('ws://localhost:8080');
 
-    this.ws.onopen = () => {
-      console.log('Job WebSocket connected');
-      this.ws?.send(JSON.stringify({ subscribeSender: senderId }));
-    };
+    this.socket = io('http://localhost:8080');
 
-    this.ws.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        this.jobStateService.updateJob(data);
-      } catch (err) {
-        console.error('Error parsing job WebSocket message', err);
-      }
-    };
+    this.socket.on('connect', () => {
+      console.log('Connected to Socket.IO server');
+      this.socket.emit('subscribeSeller', sellerId);
+    });
 
-    this.ws.onerror = (error) => {
-      console.error('Job WebSocket error', error);
-    };
+    this.socket.on('jobUpdate', (data: JobNotification) => {
+      this.jobStateService.updateJob(data);
+    });
 
-    this.ws.onclose = () => {
-      console.log('Job WebSocket disconnected');
-    };
+    this.socket.on('connect_error', (err) => {
+      console.error('WebSocket connection error:', err);
+    });
+
+    this.socket.on('disconnect', (reason) => {
+      console.log('WebSocket disconnected:', reason);
+    });
   }
+
 }

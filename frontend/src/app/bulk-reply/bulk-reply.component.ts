@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { BulkReplyService } from '../api/bulk-reply.service';
+import { TicketsService } from '../api/tickets.service';
 
 export interface BulkReplyData {
   selectedTicketIds: number[];
@@ -19,7 +19,7 @@ export class BulkReplyComponent implements OnInit {
 
   constructor(
     private fb: FormBuilder,
-    private bulkReplyService: BulkReplyService,
+    private ticketsService: TicketsService,
     public dialogRef: MatDialogRef<BulkReplyComponent>,
     @Inject(MAT_DIALOG_DATA) public data: BulkReplyData
   ) {}
@@ -36,7 +36,7 @@ export class BulkReplyComponent implements OnInit {
       senderId: localStorage.getItem('senderId')!,
       text: this.bulkReplyForm.value.text!,
     };
-    this.bulkReplyService.sendBulkReply(payload).subscribe(response => {
+    this.ticketsService.sendBulkReply(payload).subscribe(response => {
       console.log('Bulk reply job started with jobId:', response.jobId);
       this.dialogRef.close(response.jobId);
     });
