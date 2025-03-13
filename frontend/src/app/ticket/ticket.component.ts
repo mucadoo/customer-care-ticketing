@@ -1,10 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { TicketsService } from '../api/tickets.service';
-import { Message, Ticket } from '../api/Message';
-import { catchError, Observable, switchMap, tap } from 'rxjs';
+import {catchError, map, Observable, of, switchMap, tap} from 'rxjs';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { FormBuilder, Validators } from '@angular/forms';
+import {Ticket} from "../models/ticket.model";
+import {Message} from "../models/api-message.model";
 
 @Component({
   selector: 'app-ticket',
@@ -22,7 +23,12 @@ export class TicketComponent implements OnInit {
   @Input()
   set ticketId(ticketId: number) {
     this._ticketId = ticketId;
+
     this.ticket$ = this.api.getTicket(this._ticketId).pipe(
+      map(ticket => ({
+        ...ticket,
+        selected: false,
+      }) as Ticket),
       tap(ticket => {
         if (ticket.status === "resolved") {
           this.messageForm.disable();
@@ -31,13 +37,14 @@ export class TicketComponent implements OnInit {
         }
       })
     );
-    this.messages$ = this.ticket$.pipe(
-      switchMap(({ id }) => this.api.getTicketMessages(id)),
-      catchError((err, caught) => {
+
+    this.messages$ = this.api.getTicketMessages(this._ticketId).pipe(
+      catchError(err => {
         this.router.navigate(["home", "tickets", "not-found"]);
-        return caught;
+        return of([]);
       }),
-    )
+    );
+
     this.messageForm.reset();
   }
   get ticketId() {

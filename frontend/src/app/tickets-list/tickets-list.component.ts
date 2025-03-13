@@ -5,7 +5,7 @@ import { BulkReplyComponent, BulkReplyData } from '../bulk-reply/bulk-reply.comp
 import { TicketsService } from '../api/tickets.service';
 import { concat, map, Observable, switchMap, of } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { Ticket } from '../api/Message';
+import {Ticket} from "../models/ticket.model";
 
 type ItemList = Ticket & {};
 

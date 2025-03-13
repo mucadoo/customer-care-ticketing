@@ -1,22 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from "@angular/common/http";
 import { map } from 'rxjs';
-import { Message } from './Message';
-
-type ApiTicket = {
-  id: number;
-  subject: string;
-  status: "unresolved" | "resolved";
-  createdAt: string;
-}
-
-type ApiMessage = {
-  id: number;
-  senderType: "operator" | "customer";
-  senderId: string;
-  text: string;
-  createdAt: string;
-}
+import {ApiTicket} from "../models/api-ticket.model";
+import {ApiMessage} from "../models/message.model";
+import {Message} from "../models/api-message.model";
 
 @Injectable({
   providedIn: 'root'
