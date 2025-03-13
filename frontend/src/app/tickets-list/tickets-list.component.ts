@@ -61,7 +61,6 @@ export class TicketsListComponent implements OnInit {
         ticket.selected = this.selectAll;
       });
       if (this.selectAll) {
-        // Select all ticket ids.
         this.selectedTicketIds = tickets.map(ticket => ticket.id);
       } else {
         this.selectedTicketIds = [];
@@ -77,7 +76,6 @@ export class TicketsListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       console.log('Bulk reply modal closed', result);
-      // Clear the selection after the modal is closed.
       this.selectedTicketIds = [];
       this.tickets.pipe(take(1)).subscribe(tickets => {
         tickets.forEach(ticket => ticket.selected = false);

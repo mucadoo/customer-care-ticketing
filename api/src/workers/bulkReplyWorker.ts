@@ -15,6 +15,7 @@ async function getDb() {
 
 const concurrencyLimit = 10;
 const limit = pLimit(concurrencyLimit);
+const delay = (s: number) => new Promise(resolve => setTimeout(resolve, s * 1000));
 
 const bulkReplyWorker = new Worker(
   "bulkReplyQueue",
@@ -28,6 +29,7 @@ const bulkReplyWorker = new Worker(
       try {
         const [{ ok }] = await isTicketUnresolved.run({ ticketId }, client);
         if (ok) {
+          await delay(5);
           const messages = await addMessageToTicket.run(
             { ticketId, text, senderType, senderId },
             client

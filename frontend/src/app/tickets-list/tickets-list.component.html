@@ -22,7 +22,7 @@
 
   <div id="tickets">
     <mat-nav-list>
-      <mat-list-item *ngFor="let ticket of (tickets | async)" [routerLink]="['/tickets', ticket.id]">
+      <mat-list-item *ngFor="let ticket of (tickets | async)" [routerLink]="['tickets', ticket.id]">
         <mat-checkbox [(ngModel)]="ticket.selected" (change)="onTicketSelectionChange(ticket)">
         </mat-checkbox>
         <span>{{ ticket.subject }}</span>
