@@ -10,7 +10,7 @@ export class JobWebSocketService {
 
   constructor(private jobStateService: JobStateService) {}
 
-  connect(sellerId: string): void {
+  connect(senderId: string): void {
     if (this.socket) {
       this.socket.disconnect();
     }
@@ -18,11 +18,12 @@ export class JobWebSocketService {
     this.socket = io('http://localhost:8080');
 
     this.socket.on('connect', () => {
-      console.log('Connected to Socket.IO server');
-      this.socket.emit('subscribeSeller', sellerId);
+      console.log('Connected to Socket.IO server as ' + senderId);
+      this.socket.emit('subscribeSender', senderId);
     });
 
     this.socket.on('jobUpdate', (data: JobNotification) => {
+      console.log(data);
       this.jobStateService.updateJob(data);
     });
 
