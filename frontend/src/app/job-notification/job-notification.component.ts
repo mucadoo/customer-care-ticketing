@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { JobStateService, JobNotification } from '../api/job-state.service';
 import { JobWebSocketService } from '../api/job-websocket.service';
-import {JobsService} from "../api/jobs.service";
+import { JobsService } from '../api/jobs.service';
 
 @Component({
   selector: 'app-job-notification',

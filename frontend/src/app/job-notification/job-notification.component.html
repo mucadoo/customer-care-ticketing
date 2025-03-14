@@ -9,8 +9,11 @@
         <ng-container *ngFor="let job of getUnarchived(jobs); trackBy: trackByJob">
           <button mat-menu-item>
             <div class="job-item">
+              <div><strong>Name:</strong> {{ job.name }}</div>
               <div><strong>Job ID:</strong> {{ job.jobId }}</div>
               <div><strong>Status:</strong> {{ job.state }}</div>
+              <div><strong>Created:</strong> {{ job.createdAt | date:'short' }}</div>
+              <div *ngIf="job.completedAt"><strong>Completed:</strong> {{ job.completedAt | date:'short' }}</div>
               <mat-progress-bar mode="determinate" [value]="job.progress"></mat-progress-bar>
               <button mat-button color="warn" (click)="dismissJob(job.jobId)">Dismiss</button>
             </div>

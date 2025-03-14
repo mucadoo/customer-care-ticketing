@@ -43,6 +43,9 @@ export class JobNotificationSocket {
             .filter(job => job.data.senderId === senderId)
             .map(job => ({
               jobId: job.id,
+              name: job.name,
+              createdAt: new Date(job.timestamp),
+              completedAt: job.finishedOn ? new Date(job.finishedOn) : null,
               progress: typeof job.progress === "number" ? job.progress : 0,
               state: job.finishedOn
                 ? "completed"
@@ -53,6 +56,7 @@ export class JobNotificationSocket {
                     : "waiting",
               result: job.returnvalue,
               failedReason: job.failedReason,
+              archived: job.data.archived || false,
             }));
           socket.emit("initialJobList", senderJobs);
         } catch (err) {
@@ -63,11 +67,10 @@ export class JobNotificationSocket {
 
     this.bulkReplyQueueEvents.on("progress", async ({ jobId, data }) => {
       console.log(`Job ${jobId} progress: ${data}`);
-      const progressValue: number = typeof data === "number" ? data : 0;
       await this.broadcastToSender({
         event: "progress",
         jobId,
-        progress: progressValue,
+        progress: typeof data === "number" ? data : 0,
       });
     });
 
@@ -97,7 +100,24 @@ export class JobNotificationSocket {
     if (!job) return;
     const { senderId } = job.data;
     if (!senderId) return;
-    const message = { ...eventData, senderId };
+    const message = {
+      jobId: job.id,
+      name: job.name,
+      createdAt: new Date(job.timestamp),
+      completedAt: job.finishedOn ? new Date(job.finishedOn) : null,
+      progress: typeof job.progress === "number" ? job.progress : 0,
+      state: job.finishedOn
+        ? "completed"
+        : job.failedReason
+          ? "failed"
+          : job.processedOn
+            ? "active"
+            : "waiting",
+      result: job.returnvalue,
+      failedReason: job.failedReason,
+      archived: job.data.archived || false,
+      event: eventData.event,
+    };
     this.io.to(senderId).emit("jobUpdate", message);
   }
 }

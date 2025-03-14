@@ -3,6 +3,9 @@ import { BehaviorSubject } from 'rxjs';
 
 export interface JobNotification {
   jobId: string;
+  name: string;
+  createdAt: Date;
+  completedAt?: Date | null;
   progress: number;
   state: 'waiting' | 'active' | 'completed' | 'failed' | string;
   result?: any;
