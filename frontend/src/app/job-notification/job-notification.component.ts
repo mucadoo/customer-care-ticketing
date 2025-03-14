@@ -23,7 +23,6 @@ export class JobNotificationComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.jobWsService.connect(this.currentSenderId);
     this.subscription = this.jobStateService.jobs$.subscribe(jobs => {
-      // Count jobs that are not archived; now archive functionality is removed, so count all jobs.
       this.activeJobCount = jobs.length;
     });
   }

@@ -29,7 +29,7 @@ const bulkReplyWorker = new Worker(
       try {
         const [{ ok }] = await isTicketUnresolved.run({ ticketId }, client);
         if (ok) {
-          await delay(5);
+          await delay(Math.random() * (10 - 1) + 1);
           const messages = await addMessageToTicket.run(
             { ticketId, text, senderType, senderId },
             client

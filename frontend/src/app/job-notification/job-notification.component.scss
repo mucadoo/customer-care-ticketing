@@ -98,8 +98,12 @@
   color: orange !important;
 }
 
-.error-icon {
+.error-icon, .failed-icon {
   color: red !important;
+}
+
+.default-icon {
+  color: gray !important;
 }
 
 .no-jobs {

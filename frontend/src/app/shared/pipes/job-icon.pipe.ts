@@ -7,7 +7,7 @@ import {JobNotification} from "../../api/job-state.service";
 export class JobStatusPipe implements PipeTransform {
   transform(job: JobNotification): { icon: string; class: string; tooltip: string } {
     let icon = 'hourglass_empty';
-    let cssClass = '';
+    let cssClass = 'default-icon';
     let tooltip = 'Job waiting to start';
 
     if (job.state === 'active' && job.progress && typeof job.progress === 'object') {
@@ -30,17 +30,9 @@ export class JobStatusPipe implements PipeTransform {
         cssClass = 'error-icon';
       }
       const parts = [];
-      if (success > 0) {
-        parts.push(`✅ Success: ${success}`);
-      }
-      if (error > 0) {
-        parts.push(`❌ Errors: ${error}`);
-      }
-      if (parts.length) {
-        tooltip = `${parts.join(' | ')} (Total: ${total})`;
-      } else {
-        tooltip = `Completed: ${total} processed`;
-      }
+      if (success > 0) { parts.push(`✅ Success: ${success}`); }
+      if (error > 0) { parts.push(`❌ Errors: ${error}`); }
+      tooltip = parts.length ? `${parts.join(' | ')} (Total: ${total})` : `Completed: ${total} processed`;
     } else if (job.state === 'failed') {
       icon = 'error';
       cssClass = 'failed-icon';

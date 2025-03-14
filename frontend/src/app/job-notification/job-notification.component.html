@@ -31,40 +31,23 @@
                   </div>
                 </div>
                 <div class="job-status">
-                  <ng-container [ngSwitch]="job.state">
+                  <ng-container *ngIf="job.state === 'active'; else iconTemplate">
                     <mat-progress-spinner
-                      *ngSwitchCase="'active'"
                       [value]="(job.progress?.success ?? 0) / (job.progress?.total ?? 1) * 100"
                       diameter="28"
                       mode="determinate"
                       matTooltip="{{ (job | jobStatus).tooltip }}"
                       matTooltipPosition="above">
                     </mat-progress-spinner>
-
-                    <mat-icon
-                      *ngSwitchCase="'completed'"
-                      [ngClass]="(job | jobStatus).class"
-                      matTooltip="{{ (job | jobStatus).tooltip }}"
-                      matTooltipPosition="above">
-                      {{ (job | jobStatus).icon }}
-                    </mat-icon>
-
-                    <mat-icon
-                      *ngSwitchCase="'failed'"
-                      [ngClass]="(job | jobStatus).class"
-                      matTooltip="{{ (job | jobStatus).tooltip }}"
-                      matTooltipPosition="above">
-                      {{ (job | jobStatus).icon }}
-                    </mat-icon>
-
-                    <mat-icon
-                      *ngSwitchDefault
-                      class="status-icon"
-                      matTooltip="{{ (job | jobStatus).tooltip }}"
-                      matTooltipPosition="above">
-                      hourglass_empty
-                    </mat-icon>
                   </ng-container>
+                  <ng-template #iconTemplate>
+                    <mat-icon
+                      [ngClass]="(job | jobStatus).class"
+                      matTooltip="{{ (job | jobStatus).tooltip }}"
+                      matTooltipPosition="above">
+                      {{ (job | jobStatus).icon }}
+                    </mat-icon>
+                  </ng-template>
                 </div>
               </div>
             </ng-container>
