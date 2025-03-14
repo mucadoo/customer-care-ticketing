@@ -4,6 +4,10 @@
   box-sizing: border-box;
 }
 
+::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  display: none !important;
+}
+
 .menu-content {
   width: 100%;
   padding: 8px;
@@ -37,9 +41,13 @@
   border-radius: 4px;
   background-color: #fff;
   padding: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
   box-sizing: border-box;
   overflow: hidden;
+}
+
+.job-item:last-child {
+  margin-bottom: 0;
 }
 
 .job-header {
@@ -49,6 +57,7 @@
   justify-content: space-between;
   width: 100%;
   box-sizing: border-box;
+  margin-bottom: 5px;
 }
 
 .job-name {
