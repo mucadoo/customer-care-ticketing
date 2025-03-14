@@ -34,7 +34,6 @@ export class JobNotificationComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Filter jobs based on selected filter and sort descending by createdAt
   getFilteredJobs(jobs: JobNotification[]): JobNotification[] {
     const filtered = jobs.filter(job =>
       this.selectedFilter === 'all' || job.state === this.selectedFilter

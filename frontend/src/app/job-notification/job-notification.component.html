@@ -22,7 +22,6 @@
           <ng-container *ngIf="getFilteredJobs(jobs).length > 0; else noJobs">
             <ng-container *ngFor="let job of getFilteredJobs(jobs); trackBy: trackByJob">
               <div class="job-item">
-                <!-- Job Info Column -->
                 <div class="job-info">
                   <div class="job-title">{{ job.name }}</div>
                   <div class="job-details">
@@ -37,13 +36,34 @@
                       *ngSwitchCase="'active'"
                       [value]="(job.progress?.success ?? 0) / (job.progress?.total ?? 1) * 100"
                       diameter="28"
-                      mode="determinate">
+                      mode="determinate"
+                      matTooltip="{{ (job | jobStatus).tooltip }}"
+                      matTooltipPosition="above">
                     </mat-progress-spinner>
-                    <mat-icon *ngSwitchCase="'completed'" [ngClass]="(job | jobIcon).class">
-                      {{ (job | jobIcon).icon }}
+
+                    <mat-icon
+                      *ngSwitchCase="'completed'"
+                      [ngClass]="(job | jobStatus).class"
+                      matTooltip="{{ (job | jobStatus).tooltip }}"
+                      matTooltipPosition="above">
+                      {{ (job | jobStatus).icon }}
                     </mat-icon>
-                    <mat-icon *ngSwitchCase="'failed'" class="status-icon failed-icon">error</mat-icon>
-                    <mat-icon *ngSwitchDefault class="status-icon">hourglass_empty</mat-icon>
+
+                    <mat-icon
+                      *ngSwitchCase="'failed'"
+                      [ngClass]="(job | jobStatus).class"
+                      matTooltip="{{ (job | jobStatus).tooltip }}"
+                      matTooltipPosition="above">
+                      {{ (job | jobStatus).icon }}
+                    </mat-icon>
+
+                    <mat-icon
+                      *ngSwitchDefault
+                      class="status-icon"
+                      matTooltip="{{ (job | jobStatus).tooltip }}"
+                      matTooltipPosition="above">
+                      hourglass_empty
+                    </mat-icon>
                   </ng-container>
                 </div>
               </div>

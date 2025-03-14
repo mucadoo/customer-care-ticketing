@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { JobIconPipe } from './pipes/job-icon.pipe';
+import { JobStatusPipe } from './pipes/job-icon.pipe';
 
 @NgModule({
-  declarations: [JobIconPipe],
+  declarations: [JobStatusPipe],
   imports: [CommonModule],
-  exports: [JobIconPipe]
+  exports: [JobStatusPipe]
 })
 export class SharedModule { }

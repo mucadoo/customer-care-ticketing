@@ -29,6 +29,7 @@ import {MatMenuModule} from "@angular/material/menu";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import {SharedModule} from "./shared/shared.module";
+import {MatTooltipModule} from "@angular/material/tooltip";
 
 @NgModule({
   declarations: [
@@ -40,29 +41,30 @@ import {SharedModule} from "./shared/shared.module";
     BulkReplyComponent,
     JobNotificationComponent
   ],
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        BrowserAnimationsModule,
-        ReactiveFormsModule,
-        MatListModule,
-        MatToolbarModule,
-        MatSidenavModule,
-        MatFormFieldModule,
-        MatInputModule,
-        MatButtonModule,
-        MatIconModule,
-        MatSnackBarModule,
-        MatSelectModule,
-        MatDialogModule,
-        MatCheckboxModule,
-        FormsModule,
-        MatBadgeModule,
-        MatMenuModule,
-        MatProgressBarModule,
-        MatProgressSpinnerModule,
-        SharedModule
-    ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    BrowserAnimationsModule,
+    ReactiveFormsModule,
+    MatListModule,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
+    MatIconModule,
+    MatSnackBarModule,
+    MatSelectModule,
+    MatDialogModule,
+    MatCheckboxModule,
+    FormsModule,
+    MatBadgeModule,
+    MatMenuModule,
+    MatProgressBarModule,
+    MatProgressSpinnerModule,
+    SharedModule,
+    MatTooltipModule
+  ],
   providers: [
     importProvidersFrom(HttpClientModule),
     TicketsService

@@ -2,21 +2,51 @@ import { Pipe, PipeTransform } from '@angular/core';
 import {JobNotification} from "../../api/job-state.service";
 
 @Pipe({
-  name: 'jobIcon'
+  name: 'jobStatus'
 })
-export class JobIconPipe implements PipeTransform {
-  transform(job: JobNotification): { icon: string; class: string } {
-    if (job.state !== 'completed' || !job.progress || typeof job.progress !== 'object') {
-      return { icon: 'check_circle', class: 'completed-icon' };
+export class JobStatusPipe implements PipeTransform {
+  transform(job: JobNotification): { icon: string; class: string; tooltip: string } {
+    let icon = 'hourglass_empty';
+    let cssClass = '';
+    let tooltip = 'Job waiting to start';
+
+    if (job.state === 'active' && job.progress && typeof job.progress === 'object') {
+      const { success, error, total } = job.progress;
+      const processed = success + error;
+      const left = total - processed;
+      tooltip = `⏳ In progress: ${processed} processed, ${left} left`;
+      icon = 'autorenew';
+      cssClass = 'active-icon';
+    } else if (job.state === 'completed' && job.progress && typeof job.progress === 'object') {
+      const { success, error, total } = job.progress;
+      if (error === 0) {
+        icon = 'check_circle';
+        cssClass = 'completed-icon';
+      } else if (error > 0 && error < total) {
+        icon = 'warning';
+        cssClass = 'warning-icon';
+      } else if (error === total) {
+        icon = 'error';
+        cssClass = 'error-icon';
+      }
+      const parts = [];
+      if (success > 0) {
+        parts.push(`✅ Success: ${success}`);
+      }
+      if (error > 0) {
+        parts.push(`❌ Errors: ${error}`);
+      }
+      if (parts.length) {
+        tooltip = `${parts.join(' | ')} (Total: ${total})`;
+      } else {
+        tooltip = `Completed: ${total} processed`;
+      }
+    } else if (job.state === 'failed') {
+      icon = 'error';
+      cssClass = 'failed-icon';
+      tooltip = 'Job failed';
     }
-    const { success, error, total } = job.progress;
-    if (error === 0) {
-      return { icon: 'check_circle', class: 'completed-icon' };
-    } else if (error > 0 && error < total) {
-      return { icon: 'warning', class: 'warning-icon' };
-    } else if (error === total) {
-      return { icon: 'error', class: 'error-icon' };
-    }
-    return { icon: 'check_circle', class: 'completed-icon' };
+
+    return { icon, class: cssClass, tooltip };
   }
 }
