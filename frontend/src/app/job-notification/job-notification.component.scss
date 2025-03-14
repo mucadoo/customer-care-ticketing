@@ -1,20 +1,26 @@
-.job-menu {
-  width: 800px !important;  /* Increased overall width */
-  box-sizing: border-box;
+::ng-deep .job-menu {
+  max-width: 400px !important;
+  min-width: 400px !important;
 }
 
 .menu-content {
+  width: 100%;
   padding: 8px;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .job-menu-header {
   padding-bottom: 8px;
   border-bottom: 1px solid #ddd;
   margin-bottom: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .filter-field {
   width: 100%;
+  box-sizing: border-box;
 }
 
 .job-list {
@@ -22,6 +28,7 @@
   overflow-y: auto;
   width: 100%;
   box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .job-item {
@@ -36,6 +43,7 @@
   background-color: #fff;
   margin-bottom: 16px;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .job-info {
@@ -43,11 +51,16 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .job-title {
   font-size: 18px;
   font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .job-details {
@@ -56,6 +69,9 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .job-status {
@@ -63,12 +79,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 16px;
+  min-width: 80px;
+  box-sizing: border-box;
 }
 
 .status-icon {
   font-size: 32px;
   line-height: 32px;
+  white-space: nowrap;
+  overflow: visible;
 }
 
 .completed-icon {
@@ -94,4 +113,7 @@
   text-align: center;
   padding: 16px;
   color: #666;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }

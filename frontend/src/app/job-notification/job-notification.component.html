@@ -6,7 +6,6 @@
   <mat-menu #jobMenu="matMenu" class="job-menu" [overlapTrigger]="false">
     <!-- Outer container to keep the menu open on inner clicks -->
     <div class="menu-content" (click)="$event.stopPropagation()">
-      <!-- Header with filter (click events stopped to keep menu open) -->
       <div class="job-menu-header" (click)="$event.stopPropagation()">
         <mat-form-field appearance="fill" class="filter-field" (click)="$event.stopPropagation()">
           <mat-label>Filter by Status</mat-label>
