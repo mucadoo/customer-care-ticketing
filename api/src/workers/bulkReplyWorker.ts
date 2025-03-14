@@ -2,7 +2,6 @@ import { Worker } from "bullmq";
 import { Pool } from "pg";
 import { isTicketUnresolved } from "../queries/tickets.queries";
 import { addMessageToTicket } from "../queries/messages.queries";
-import assert from "assert";
 import pLimit from "p-limit";
 
 const pool = new Pool({
@@ -22,28 +21,34 @@ const bulkReplyWorker = new Worker(
   async (job) => {
     const { ticketIds, senderType, senderId, text } = job.data;
     const total = ticketIds.length;
-    let processed = 0;
+    let successCount = 0;
+    let errorCount = 0;
 
     const processTicket = async (ticketId: number) => {
       const client = await getDb();
       try {
-        //Artificial delay to test
-        await delay(5);
         const [{ ok }] = await isTicketUnresolved.run({ ticketId }, client);
         if (ok) {
+          await delay(5);
           const messages = await addMessageToTicket.run(
             { ticketId, text, senderType, senderId },
             client
           );
-          assert.ok(messages.length === 1);
+          if (messages.length === 1) {
+            successCount++;
+          } else {
+            errorCount++;
+          }
+        } else {
+          successCount++;
         }
       } catch (err) {
         console.error(`Error processing ticket ${ticketId}:`, err);
+        errorCount++;
       } finally {
         client.release();
       }
-      processed++;
-      await job.updateProgress(Math.round((processed / total) * 100));
+      await job.updateProgress({ success: successCount, error: errorCount, total });
     };
 
     const tasks = ticketIds.map((ticketId: number) =>

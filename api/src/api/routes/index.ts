@@ -6,8 +6,7 @@ import { routeCreateTicket } from "./tickets/create-ticket";
 import { routeDeleteTicket } from "./tickets/delete-ticket";
 import { routeResolveTicket } from "./tickets/resolve-ticket";
 import { routeListTicketMessages } from "./tickets/list-ticket-messages";
-import {routeBulkReply} from "./tickets/bulk-ticket-message";
-import {routeArchiveJob} from "./jobs/archive";
+import { routeBulkReply } from "./tickets/bulk-ticket-message";
 
 export async function routes(instance: FastifyInstance) {
   instance
@@ -19,6 +18,5 @@ export async function routes(instance: FastifyInstance) {
     .register(routeResolveTicket)
     .register(routeListTicketMessages)
     .register(routeBulkReply)
-    .register(routeArchiveJob)
     ;
 }

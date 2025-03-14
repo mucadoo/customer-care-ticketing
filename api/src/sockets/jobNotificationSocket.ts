@@ -24,7 +24,6 @@ export class JobNotificationSocket {
       socket.on("subscribeSender", async (senderId: string) => {
         console.log(`Socket ${socket.id} subscribed to senderId: ${senderId}`);
         socket.join(senderId);
-
         try {
           const jobs = await this.bulkReplyQueue.getJobs(
             ["completed", "failed", "active", "waiting"],
@@ -42,26 +41,30 @@ export class JobNotificationSocket {
     });
 
     this.bulkReplyQueueEvents.on("progress", async ({ jobId, data }) => {
-      console.log(`Job ${jobId} progress: ${data}`);
-      await this.emitJobUpdate(jobId, { event: "progress", progress: typeof data === "number" ? data : 0 });
+      console.log(`Job ${jobId} progress: `, data);
+      await this.broadcastToSender({
+        event: "progress",
+        jobId,
+        progress: data,
+      });
     });
 
     this.bulkReplyQueueEvents.on("completed", async ({ jobId, returnvalue }) => {
       console.log(`Job ${jobId} completed`);
-      await this.emitJobUpdate(jobId, { event: "completed", result: returnvalue });
+      await this.broadcastToSender({
+        event: "completed",
+        jobId,
+        result: returnvalue,
+      });
     });
 
     this.bulkReplyQueueEvents.on("failed", async ({ jobId, failedReason }) => {
       console.log(`Job ${jobId} failed: ${failedReason}`);
-      await this.emitJobUpdate(jobId, { event: "failed", failedReason });
-    });
-
-    this.bulkReplyQueueEvents.on("waiting", async ({ jobId }) => {
-      console.log(`Job ${jobId} is waiting (created)`);
-      const job = await this.bulkReplyQueue.getJob(jobId);
-      if (!job) return;
-      const jobData = this.formatJobData(job);
-      this.io.to(job.data.senderId).emit("jobCreated", jobData);
+      await this.broadcastToSender({
+        event: "failed",
+        jobId,
+        failedReason,
+      });
     });
   }
 
@@ -71,7 +74,7 @@ export class JobNotificationSocket {
       name: job.name,
       createdAt: new Date(job.timestamp),
       completedAt: job.finishedOn ? new Date(job.finishedOn) : null,
-      progress: typeof job.progress === "number" ? job.progress : 0,
+      progress: job.progress, // { success, error, total }
       state: job.finishedOn
         ? "completed"
         : job.failedReason
@@ -80,18 +83,16 @@ export class JobNotificationSocket {
             ? "active"
             : "waiting",
       result: job.returnvalue,
-      failedReason: job.failedReason,
-      archived: job.data.archived || false,
+      failedReason: job.failedReason
     };
   }
 
-  private async emitJobUpdate(jobId: string, extraData: Partial<{ event: string; progress?: number; result?: any; failedReason?: string; }>) {
-    const job = await this.bulkReplyQueue.getJob(jobId);
+  private async broadcastToSender(eventData: { event: string; jobId: string; progress?: any; result?: any; failedReason?: string; }) {
+    const job = await this.bulkReplyQueue.getJob(eventData.jobId);
     if (!job) return;
     const { senderId } = job.data;
     if (!senderId) return;
-    const jobData = this.formatJobData(job);
-    const message = { ...jobData, ...extraData };
+    const message = { ...this.formatJobData(job), ...eventData };
     this.io.to(senderId).emit("jobUpdate", message);
   }
 }
