@@ -46,20 +46,4 @@ export class JobNotificationComponent implements OnInit, OnDestroy {
     return job.jobId;
   }
 
-  // Decide which icon to display for completed jobs based on progress counts
-  getJobIcon(job: JobNotification): string {
-    if (job.state !== 'completed' || !job.progress || typeof job.progress !== 'object') {
-      return 'check_circle';
-    }
-    const { success, error, total } = job.progress;
-    if (error === 0) {
-      return 'check_circle';
-    } else if (error > 0 && error < total) {
-      return 'warning';
-    } else if (error === total) {
-      return 'error';
-    }
-    return 'check_circle';
-  }
-
 }

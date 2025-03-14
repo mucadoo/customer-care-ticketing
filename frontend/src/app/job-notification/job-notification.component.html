@@ -31,17 +31,16 @@
                     <span *ngIf="job.completedAt">Completed: {{ job.completedAt | date:'short' }}</span>
                   </div>
                 </div>
-                <!-- Status Column -->
                 <div class="job-status">
                   <ng-container [ngSwitch]="job.state">
                     <mat-progress-spinner
                       *ngSwitchCase="'active'"
-                      [value]="(((job.progress?.error ?? 0) + (job.progress?.success ?? 0)) / (job.progress?.total ?? 1)) * 100"
+                      [value]="(job.progress?.success ?? 0) / (job.progress?.total ?? 1) * 100"
                       diameter="28"
                       mode="determinate">
                     </mat-progress-spinner>
-                    <mat-icon *ngSwitchCase="'completed'" class="status-icon">
-                      {{ getJobIcon(job) }}
+                    <mat-icon *ngSwitchCase="'completed'" [ngClass]="(job | jobIcon).class">
+                      {{ (job | jobIcon).icon }}
                     </mat-icon>
                     <mat-icon *ngSwitchCase="'failed'" class="status-icon failed-icon">error</mat-icon>
                     <mat-icon *ngSwitchDefault class="status-icon">hourglass_empty</mat-icon>
