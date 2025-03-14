@@ -27,9 +27,10 @@ const bulkReplyWorker = new Worker(
     const processTicket = async (ticketId: number) => {
       const client = await getDb();
       try {
+        //Artificial delay to test
+        await delay(5);
         const [{ ok }] = await isTicketUnresolved.run({ ticketId }, client);
         if (ok) {
-          await delay(5);
           const messages = await addMessageToTicket.run(
             { ticketId, text, senderType, senderId },
             client

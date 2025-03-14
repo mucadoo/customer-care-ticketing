@@ -61,7 +61,6 @@ export class JobNotificationSocket {
       });
     });
 
-    // Listen for real-time events from BullMQ and broadcast them
     this.bulkReplyQueueEvents.on("progress", async ({ jobId, data }) => {
       console.log(`Job ${jobId} progress: ${data}`);
       const progressValue: number = typeof data === "number" ? data : 0;

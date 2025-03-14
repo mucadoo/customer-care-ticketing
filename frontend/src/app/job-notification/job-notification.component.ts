@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { JobStateService, JobNotification } from '../api/job-state.service';
 import { JobWebSocketService } from '../api/job-websocket.service';
+import {JobsService} from "../api/jobs.service";
 
 @Component({
   selector: 'app-job-notification',
@@ -17,7 +18,7 @@ export class JobNotificationComponent implements OnInit, OnDestroy {
   constructor(
     private jobStateService: JobStateService,
     private jobWsService: JobWebSocketService,
-    //private jobService: JobService
+    private jobsService: JobsService
   ) {}
 
   ngOnInit(): void {
@@ -34,10 +35,9 @@ export class JobNotificationComponent implements OnInit, OnDestroy {
   }
 
   dismissJob(jobId: string): void {
-    // Call backend endpoint to remove the job from BullMQ history
-    // this.jobService.dismissJob(jobId).subscribe(() => {
-    //   this.jobStateService.archiveJob(jobId);
-    // });
+    this.jobsService.archiveJob(jobId).subscribe(() => {
+      this.jobStateService.archiveJob(jobId);
+    });
   }
 
   getUnarchived(jobs: JobNotification[]): JobNotification[] {
