@@ -27,6 +27,7 @@ import {MatCheckboxModule} from "@angular/material/checkbox";
 import {MatBadgeModule} from "@angular/material/badge";
 import {MatMenuModule} from "@angular/material/menu";
 import {MatProgressBarModule} from "@angular/material/progress-bar";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 
 @NgModule({
   declarations: [
@@ -38,27 +39,28 @@ import {MatProgressBarModule} from "@angular/material/progress-bar";
     BulkReplyComponent,
     JobNotificationComponent
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    BrowserAnimationsModule,
-    ReactiveFormsModule,
-    MatListModule,
-    MatToolbarModule,
-    MatSidenavModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSnackBarModule,
-    MatSelectModule,
-    MatDialogModule,
-    MatCheckboxModule,
-    FormsModule,
-    MatBadgeModule,
-    MatMenuModule,
-    MatProgressBarModule,
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        BrowserAnimationsModule,
+        ReactiveFormsModule,
+        MatListModule,
+        MatToolbarModule,
+        MatSidenavModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatButtonModule,
+        MatIconModule,
+        MatSnackBarModule,
+        MatSelectModule,
+        MatDialogModule,
+        MatCheckboxModule,
+        FormsModule,
+        MatBadgeModule,
+        MatMenuModule,
+        MatProgressBarModule,
+        MatProgressSpinnerModule,
+    ],
   providers: [
     importProvidersFrom(HttpClientModule),
     TicketsService,

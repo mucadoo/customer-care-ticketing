@@ -13,6 +13,8 @@ export class JobNotificationComponent implements OnInit, OnDestroy {
   jobs$ = this.jobStateService.jobs$;
   currentSenderId = localStorage.getItem('senderId')!;
   activeJobCount = 0;
+  // Default filter: show all jobs
+  selectedFilter: string = 'all';
   private subscription!: Subscription;
 
   constructor(
@@ -24,6 +26,7 @@ export class JobNotificationComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.jobWsService.connect(this.currentSenderId);
     this.subscription = this.jobStateService.jobs$.subscribe(jobs => {
+      // Count only not archived jobs
       this.activeJobCount = jobs.filter(job => !job.archived).length;
     });
   }
@@ -40,8 +43,14 @@ export class JobNotificationComponent implements OnInit, OnDestroy {
     });
   }
 
-  getUnarchived(jobs: JobNotification[]): JobNotification[] {
-    return jobs.filter(job => !job.archived);
+  // Filters out archived jobs and applies the status filter,
+  // then sorts by createdAt descending.
+  getFilteredJobs(jobs: JobNotification[]): JobNotification[] {
+    const filtered = jobs.filter(job =>
+      !job.archived &&
+      (this.selectedFilter === 'all' || job.state === this.selectedFilter)
+    );
+    return filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
   trackByJob(index: number, job: JobNotification): string {

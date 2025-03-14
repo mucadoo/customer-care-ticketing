@@ -3,26 +3,61 @@
     <mat-icon>notifications</mat-icon>
   </button>
 
-  <mat-menu #jobMenu="matMenu">
-    <ng-container *ngIf="(jobs$ | async) as jobs">
-      <ng-container *ngIf="getUnarchived(jobs).length > 0; else noJobs">
-        <ng-container *ngFor="let job of getUnarchived(jobs); trackBy: trackByJob">
-          <button mat-menu-item>
-            <div class="job-item">
-              <div><strong>Name:</strong> {{ job.name }}</div>
-              <div><strong>Job ID:</strong> {{ job.jobId }}</div>
-              <div><strong>Status:</strong> {{ job.state }}</div>
-              <div><strong>Created:</strong> {{ job.createdAt | date:'short' }}</div>
-              <div *ngIf="job.completedAt"><strong>Completed:</strong> {{ job.completedAt | date:'short' }}</div>
-              <mat-progress-bar mode="determinate" [value]="job.progress"></mat-progress-bar>
-              <button mat-button color="warn" (click)="dismissJob(job.jobId)">Dismiss</button>
-            </div>
-          </button>
+  <mat-menu #jobMenu="matMenu" class="job-menu">
+    <!-- Header with filter -->
+    <div class="job-menu-header">
+      <mat-form-field appearance="fill" class="filter-field">
+        <mat-label>Filter by Status</mat-label>
+        <mat-select [(value)]="selectedFilter">
+          <mat-option value="all">All</mat-option>
+          <mat-option value="waiting">Waiting</mat-option>
+          <mat-option value="active">Active</mat-option>
+          <mat-option value="completed">Completed</mat-option>
+          <mat-option value="failed">Failed</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Job list container -->
+    <div class="job-list">
+      <ng-container *ngIf="(jobs$ | async) as jobs">
+        <ng-container *ngIf="getFilteredJobs(jobs).length > 0; else noJobs">
+          <ng-container *ngFor="let job of getFilteredJobs(jobs); trackBy: trackByJob">
+            <button mat-menu-item class="job-item-container">
+              <div class="job-item">
+                <div class="job-info">
+                  <div class="job-title">{{ job.name }}</div>
+                  <div class="job-details">
+                    <span>ID: {{ job.jobId }}</span>
+                    <span>Created: {{ job.createdAt | date:'short' }}</span>
+                    <span *ngIf="job.completedAt">Completed: {{ job.completedAt | date:'short' }}</span>
+                  </div>
+                </div>
+                <div class="job-status">
+                  <ng-container [ngSwitch]="job.state">
+                    <!-- When active, show a progress circle reflecting job.progress -->
+                    <mat-progress-spinner
+                      *ngSwitchCase="'active'"
+                      [value]="job.progress"
+                      diameter="28"
+                      mode="determinate">
+                    </mat-progress-spinner>
+                    <mat-icon *ngSwitchCase="'failed'" class="status-icon failed-icon">error</mat-icon>
+                    <mat-icon *ngSwitchCase="'completed'" class="status-icon completed-icon">check_circle</mat-icon>
+                    <mat-icon *ngSwitchDefault class="status-icon">hourglass_empty</mat-icon>
+                  </ng-container>
+                </div>
+                <button mat-icon-button color="warn" (click)="dismissJob(job.jobId)" class="archive-button">
+                  <mat-icon>archive</mat-icon>
+                </button>
+              </div>
+            </button>
+          </ng-container>
         </ng-container>
+        <ng-template #noJobs>
+          <button mat-menu-item>No active jobs</button>
+        </ng-template>
       </ng-container>
-      <ng-template #noJobs>
-        <button mat-menu-item>No active jobs</button>
-      </ng-template>
-    </ng-container>
+    </div>
   </mat-menu>
 </div>
