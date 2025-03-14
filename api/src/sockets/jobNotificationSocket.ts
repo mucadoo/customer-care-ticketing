@@ -4,14 +4,6 @@ import { Queue, QueueEvents } from "bullmq";
 const REDIS_HOST = process.env.REDIS_HOST || "localhost";
 const REDIS_PORT = Number(process.env.REDIS_PORT) || 6379;
 
-interface BroadcastEventData {
-  jobId: string;
-  event: string;
-  progress?: number;
-  result?: any;
-  failedReason?: string;
-}
-
 export class JobNotificationSocket {
   private bulkReplyQueue: Queue;
   private bulkReplyQueueEvents: QueueEvents;
@@ -41,23 +33,7 @@ export class JobNotificationSocket {
           );
           const senderJobs = jobs
             .filter(job => job.data.senderId === senderId)
-            .map(job => ({
-              jobId: job.id,
-              name: job.name,
-              createdAt: new Date(job.timestamp),
-              completedAt: job.finishedOn ? new Date(job.finishedOn) : null,
-              progress: typeof job.progress === "number" ? job.progress : 0,
-              state: job.finishedOn
-                ? "completed"
-                : job.failedReason
-                  ? "failed"
-                  : job.processedOn
-                    ? "active"
-                    : "waiting",
-              result: job.returnvalue,
-              failedReason: job.failedReason,
-              archived: job.data.archived || false,
-            }));
+            .map(job => this.formatJobData(job));
           socket.emit("initialJobList", senderJobs);
         } catch (err) {
           console.error("Error fetching initial jobs:", err);
@@ -67,40 +43,30 @@ export class JobNotificationSocket {
 
     this.bulkReplyQueueEvents.on("progress", async ({ jobId, data }) => {
       console.log(`Job ${jobId} progress: ${data}`);
-      await this.broadcastToSender({
-        event: "progress",
-        jobId,
-        progress: typeof data === "number" ? data : 0,
-      });
+      await this.emitJobUpdate(jobId, { event: "progress", progress: typeof data === "number" ? data : 0 });
     });
 
     this.bulkReplyQueueEvents.on("completed", async ({ jobId, returnvalue }) => {
       console.log(`Job ${jobId} completed`);
-      await this.broadcastToSender({
-        event: "completed",
-        jobId,
-        result: returnvalue,
-      });
+      await this.emitJobUpdate(jobId, { event: "completed", result: returnvalue });
     });
 
     this.bulkReplyQueueEvents.on("failed", async ({ jobId, failedReason }) => {
       console.log(`Job ${jobId} failed: ${failedReason}`);
-      await this.broadcastToSender({
-        event: "failed",
-        jobId,
-        failedReason,
-      });
+      await this.emitJobUpdate(jobId, { event: "failed", failedReason });
+    });
+
+    this.bulkReplyQueueEvents.on("waiting", async ({ jobId }) => {
+      console.log(`Job ${jobId} is waiting (created)`);
+      const job = await this.bulkReplyQueue.getJob(jobId);
+      if (!job) return;
+      const jobData = this.formatJobData(job);
+      this.io.to(job.data.senderId).emit("jobCreated", jobData);
     });
   }
 
-  private async broadcastToSender(
-    eventData: BroadcastEventData
-  ): Promise<void> {
-    const job = await this.bulkReplyQueue.getJob(eventData.jobId);
-    if (!job) return;
-    const { senderId } = job.data;
-    if (!senderId) return;
-    const message = {
+  private formatJobData(job: any) {
+    return {
       jobId: job.id,
       name: job.name,
       createdAt: new Date(job.timestamp),
@@ -116,8 +82,16 @@ export class JobNotificationSocket {
       result: job.returnvalue,
       failedReason: job.failedReason,
       archived: job.data.archived || false,
-      event: eventData.event,
     };
+  }
+
+  private async emitJobUpdate(jobId: string, extraData: Partial<{ event: string; progress?: number; result?: any; failedReason?: string; }>) {
+    const job = await this.bulkReplyQueue.getJob(jobId);
+    if (!job) return;
+    const { senderId } = job.data;
+    if (!senderId) return;
+    const jobData = this.formatJobData(job);
+    const message = { ...jobData, ...extraData };
     this.io.to(senderId).emit("jobUpdate", message);
   }
 }

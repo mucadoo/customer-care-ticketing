@@ -34,6 +34,11 @@ export class JobWebSocketService {
       this.jobStateService.updateJob(data);
     });
 
+    this.socket.on('jobCreated', (job: JobNotification) => {
+      console.log('Job created event received:', job);
+      this.jobStateService.updateJob(job);
+    });
+
     this.socket.on('connect_error', (err) => {
       console.error('WebSocket connection error:', err);
     });
