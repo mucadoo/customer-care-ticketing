@@ -25,7 +25,6 @@
                 <div class="job-info">
                   <div class="job-title">{{ job.name }}</div>
                   <div class="job-details">
-                    <span>ID: {{ job.jobId }}</span>
                     <span>Created: {{ job.createdAt | date:'short' }}</span>
                     <span *ngIf="job.completedAt">Completed: {{ job.completedAt | date:'short' }}</span>
                   </div>
