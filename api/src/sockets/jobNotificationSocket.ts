@@ -29,30 +29,71 @@ export class JobNotificationSocket {
   private initialize(): void {
     this.io.on("connection", (socket: Socket) => {
       console.log(`Client connected: ${socket.id}`);
-      socket.on("subscribeSender", (senderId: string) => {
+      socket.on("subscribeSender", async (senderId: string) => {
         console.log(`Socket ${socket.id} subscribed to senderId: ${senderId}`);
         socket.join(senderId);
+
+        try {
+          const jobs = await this.bulkReplyQueue.getJobs(
+            ["completed", "failed", "active", "waiting"],
+            0,
+            -1
+          );
+          const senderJobs = jobs
+            .filter(job => job.data.senderId === senderId)
+            .map(job => ({
+              jobId: job.id,
+              progress: typeof job.progress === "number" ? job.progress : 0,
+              state: job.finishedOn
+                ? "completed"
+                : job.failedReason
+                  ? "failed"
+                  : job.processedOn
+                    ? "active"
+                    : "waiting",
+              result: job.returnvalue,
+              failedReason: job.failedReason,
+            }));
+          socket.emit("initialJobList", senderJobs);
+        } catch (err) {
+          console.error("Error fetching initial jobs:", err);
+        }
       });
     });
 
+    // Listen for real-time events from BullMQ and broadcast them
     this.bulkReplyQueueEvents.on("progress", async ({ jobId, data }) => {
       console.log(`Job ${jobId} progress: ${data}`);
       const progressValue: number = typeof data === "number" ? data : 0;
-      await this.broadcastToSender({ event: "progress", jobId, progress: progressValue });
+      await this.broadcastToSender({
+        event: "progress",
+        jobId,
+        progress: progressValue,
+      });
     });
 
     this.bulkReplyQueueEvents.on("completed", async ({ jobId, returnvalue }) => {
       console.log(`Job ${jobId} completed`);
-      await this.broadcastToSender({ event: "completed", jobId, result: returnvalue });
+      await this.broadcastToSender({
+        event: "completed",
+        jobId,
+        result: returnvalue,
+      });
     });
 
     this.bulkReplyQueueEvents.on("failed", async ({ jobId, failedReason }) => {
       console.log(`Job ${jobId} failed: ${failedReason}`);
-      await this.broadcastToSender({ event: "failed", jobId, failedReason });
+      await this.broadcastToSender({
+        event: "failed",
+        jobId,
+        failedReason,
+      });
     });
   }
 
-  private async broadcastToSender(eventData: BroadcastEventData): Promise<void> {
+  private async broadcastToSender(
+    eventData: BroadcastEventData
+  ): Promise<void> {
     const job = await this.bulkReplyQueue.getJob(eventData.jobId);
     if (!job) return;
     const { senderId } = job.data;

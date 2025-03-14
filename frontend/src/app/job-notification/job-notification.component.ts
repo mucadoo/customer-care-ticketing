@@ -16,15 +16,14 @@ export class JobNotificationComponent implements OnInit, OnDestroy {
 
   constructor(
     private jobStateService: JobStateService,
-    private jobWsService: JobWebSocketService
+    private jobWsService: JobWebSocketService,
+    //private jobService: JobService
   ) {}
 
   ngOnInit(): void {
     this.jobWsService.connect(this.currentSenderId);
     this.subscription = this.jobStateService.jobs$.subscribe(jobs => {
-      this.activeJobCount = jobs.filter(job =>
-        !job.archived && job.state !== 'completed'
-      ).length;
+      this.activeJobCount = jobs.filter(job => !job.archived).length;
     });
   }
 
@@ -35,7 +34,10 @@ export class JobNotificationComponent implements OnInit, OnDestroy {
   }
 
   dismissJob(jobId: string): void {
-    this.jobStateService.archiveJob(jobId);
+    // Call backend endpoint to remove the job from BullMQ history
+    // this.jobService.dismissJob(jobId).subscribe(() => {
+    //   this.jobStateService.archiveJob(jobId);
+    // });
   }
 
   getUnarchived(jobs: JobNotification[]): JobNotification[] {

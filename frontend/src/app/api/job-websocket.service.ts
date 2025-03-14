@@ -22,8 +22,15 @@ export class JobWebSocketService {
       this.socket.emit('subscribeSender', senderId);
     });
 
+    this.socket.on('initialJobList', (jobs: JobNotification[]) => {
+      console.log('Initial job list received:', jobs);
+      jobs.forEach(job => {
+        this.jobStateService.updateJob(job);
+      });
+    });
+
     this.socket.on('jobUpdate', (data: JobNotification) => {
-      console.log(data);
+      console.log('Job update received:', data);
       this.jobStateService.updateJob(data);
     });
 
@@ -35,5 +42,4 @@ export class JobWebSocketService {
       console.log('WebSocket disconnected:', reason);
     });
   }
-
 }
