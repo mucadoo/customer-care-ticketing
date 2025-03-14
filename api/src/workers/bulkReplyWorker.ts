@@ -40,7 +40,7 @@ const bulkReplyWorker = new Worker(
             errorCount++;
           }
         } else {
-          successCount++;
+          errorCount++;
         }
       } catch (err) {
         console.error(`Error processing ticket ${ticketId}:`, err);
