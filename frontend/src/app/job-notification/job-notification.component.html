@@ -3,29 +3,30 @@
     <mat-icon>notifications</mat-icon>
   </button>
 
-  <mat-menu #jobMenu="matMenu" class="job-menu">
-    <!-- Header with filter; stop propagation so that clicking inside doesn’t close the menu -->
-    <div class="job-menu-header" (click)="$event.stopPropagation()">
-      <mat-form-field appearance="fill" class="filter-field">
-        <mat-label>Filter by Status</mat-label>
-        <mat-select [(value)]="selectedFilter">
-          <mat-option value="all">All</mat-option>
-          <mat-option value="waiting">Waiting</mat-option>
-          <mat-option value="active">Active</mat-option>
-          <mat-option value="completed">Completed</mat-option>
-          <mat-option value="failed">Failed</mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
+  <mat-menu #jobMenu="matMenu" class="job-menu" [overlapTrigger]="false">
+    <!-- Outer container to keep the menu open on inner clicks -->
+    <div class="menu-content" (click)="$event.stopPropagation()">
+      <!-- Header with filter (click events stopped to keep menu open) -->
+      <div class="job-menu-header" (click)="$event.stopPropagation()">
+        <mat-form-field appearance="fill" class="filter-field" (click)="$event.stopPropagation()">
+          <mat-label>Filter by Status</mat-label>
+          <mat-select [(value)]="selectedFilter">
+            <mat-option value="all">All</mat-option>
+            <mat-option value="waiting">Waiting</mat-option>
+            <mat-option value="active">Active</mat-option>
+            <mat-option value="completed">Completed</mat-option>
+            <mat-option value="failed">Failed</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
 
-    <!-- Job list container -->
-    <div class="job-list">
-      <ng-container *ngIf="(jobs$ | async) as jobs">
-        <ng-container *ngIf="getFilteredJobs(jobs).length > 0; else noJobs">
-          <ng-container *ngFor="let job of getFilteredJobs(jobs); trackBy: trackByJob">
-            <div class="job-item-container">
+      <!-- Job list container -->
+      <div class="job-list">
+        <ng-container *ngIf="(jobs$ | async) as jobs">
+          <ng-container *ngIf="getFilteredJobs(jobs).length > 0; else noJobs">
+            <ng-container *ngFor="let job of getFilteredJobs(jobs); trackBy: trackByJob">
               <div class="job-item">
-                <!-- Job Info -->
+                <!-- Job Info Column -->
                 <div class="job-info">
                   <div class="job-title">{{ job.name }}</div>
                   <div class="job-details">
@@ -34,10 +35,9 @@
                     <span *ngIf="job.completedAt">Completed: {{ job.completedAt | date:'short' }}</span>
                   </div>
                 </div>
-                <!-- Job Status Row -->
-                <div class="job-status-row">
+                <!-- Status Icon / Progress Column -->
+                <div class="job-status">
                   <ng-container [ngSwitch]="job.state">
-                    <!-- Active jobs show a progress spinner -->
                     <mat-progress-spinner
                       *ngSwitchCase="'active'"
                       [value]="job.progress"
@@ -49,20 +49,20 @@
                     <mat-icon *ngSwitchDefault class="status-icon">hourglass_empty</mat-icon>
                   </ng-container>
                 </div>
-                <!-- Job Actions Row -->
-                <div class="job-action">
-                  <button mat-icon-button color="warn" (click)="dismissJob(job.jobId)" class="archive-button">
+                <!-- Archive Button Column -->
+                <div class="job-actions">
+                  <button mat-icon-button color="warn" (click)="dismissJob(job.jobId); $event.stopPropagation()" class="archive-button">
                     <mat-icon>archive</mat-icon>
                   </button>
                 </div>
               </div>
-            </div>
+            </ng-container>
           </ng-container>
+          <ng-template #noJobs>
+            <div class="no-jobs">No active jobs</div>
+          </ng-template>
         </ng-container>
-        <ng-template #noJobs>
-          <button mat-menu-item>No active jobs</button>
-        </ng-template>
-      </ng-container>
+      </div>
     </div>
   </mat-menu>
 </div>
