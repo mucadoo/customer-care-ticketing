@@ -22,31 +22,33 @@
           <ng-container *ngIf="getFilteredJobs(jobs).length > 0; else noJobs">
             <ng-container *ngFor="let job of getFilteredJobs(jobs); trackBy: trackByJob">
               <div class="job-item">
-                <div class="job-info">
-                  <div class="job-title">{{ job.name }}</div>
-                  <div class="job-details">
-                    <span>Created: {{ job.createdAt | date:'short' }}</span>
-                    <span *ngIf="job.completedAt">Completed: {{ job.completedAt | date:'short' }}</span>
+                <div class="job-header">
+                  <div class="job-name" matTooltip="{{ job.name }}">
+                    {{ job.name }}
+                  </div>
+                  <div class="job-icon">
+                    <ng-container *ngIf="job.state === 'active'; else iconTemplate">
+                      <mat-progress-spinner
+                        [value]="(job.progress?.success ?? 0) / (job.progress?.total ?? 1) * 100"
+                        diameter="28"
+                        mode="determinate"
+                        matTooltip="{{ (job | jobStatus).tooltip }}"
+                        matTooltipPosition="above">
+                      </mat-progress-spinner>
+                    </ng-container>
+                    <ng-template #iconTemplate>
+                      <mat-icon
+                        [ngClass]="(job | jobStatus).class"
+                        matTooltip="{{ (job | jobStatus).tooltip }}"
+                        matTooltipPosition="above">
+                        {{ (job | jobStatus).icon }}
+                      </mat-icon>
+                    </ng-template>
                   </div>
                 </div>
-                <div class="job-status">
-                  <ng-container *ngIf="job.state === 'active'; else iconTemplate">
-                    <mat-progress-spinner
-                      [value]="(job.progress?.success ?? 0) / (job.progress?.total ?? 1) * 100"
-                      diameter="28"
-                      mode="determinate"
-                      matTooltip="{{ (job | jobStatus).tooltip }}"
-                      matTooltipPosition="above">
-                    </mat-progress-spinner>
-                  </ng-container>
-                  <ng-template #iconTemplate>
-                    <mat-icon
-                      [ngClass]="(job | jobStatus).class"
-                      matTooltip="{{ (job | jobStatus).tooltip }}"
-                      matTooltipPosition="above">
-                      {{ (job | jobStatus).icon }}
-                    </mat-icon>
-                  </ng-template>
+                <div class="job-details">
+                  <span>Created: {{ job.createdAt | date:'short' }}</span>
+                  <span *ngIf="job.completedAt">Completed: {{ job.completedAt | date:'short' }}</span>
                 </div>
               </div>
             </ng-container>

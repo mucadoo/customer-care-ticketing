@@ -1,6 +1,7 @@
 ::ng-deep .job-menu {
-  max-width: 400px !important;
-  min-width: 400px !important;
+  max-width: 300px !important;
+  min-width: 300px !important;
+  box-sizing: border-box;
 }
 
 .menu-content {
@@ -32,35 +33,40 @@
 }
 
 .job-item {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
   border: 2px solid #e0e0e0;
   border-radius: 4px;
-  padding: 12px;
   background-color: #fff;
+  padding: 12px;
   margin-bottom: 16px;
   box-sizing: border-box;
   overflow: hidden;
 }
 
-.job-info {
-  flex: 3;
+.job-header {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
   width: 100%;
   box-sizing: border-box;
 }
 
-.job-title {
-  font-size: 18px;
-  font-weight: bold;
+.job-name {
+  flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-size: 16px;
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.job-icon {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
 }
 
 .job-details {
@@ -72,15 +78,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.job-status {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-width: 80px;
-  box-sizing: border-box;
 }
 
 .status-icon {
@@ -98,7 +95,8 @@
   color: orange !important;
 }
 
-.error-icon, .failed-icon {
+.error-icon,
+.failed-icon {
   color: red !important;
 }
 
