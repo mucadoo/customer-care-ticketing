@@ -4,8 +4,8 @@
   </button>
 
   <mat-menu #jobMenu="matMenu" class="job-menu">
-    <!-- Header with filter -->
-    <div class="job-menu-header">
+    <!-- Header with filter; stop propagation so that clicking inside doesn’t close the menu -->
+    <div class="job-menu-header" (click)="$event.stopPropagation()">
       <mat-form-field appearance="fill" class="filter-field">
         <mat-label>Filter by Status</mat-label>
         <mat-select [(value)]="selectedFilter">
@@ -23,8 +23,9 @@
       <ng-container *ngIf="(jobs$ | async) as jobs">
         <ng-container *ngIf="getFilteredJobs(jobs).length > 0; else noJobs">
           <ng-container *ngFor="let job of getFilteredJobs(jobs); trackBy: trackByJob">
-            <button mat-menu-item class="job-item-container">
+            <div class="job-item-container">
               <div class="job-item">
+                <!-- Job Info -->
                 <div class="job-info">
                   <div class="job-title">{{ job.name }}</div>
                   <div class="job-details">
@@ -33,9 +34,10 @@
                     <span *ngIf="job.completedAt">Completed: {{ job.completedAt | date:'short' }}</span>
                   </div>
                 </div>
-                <div class="job-status">
+                <!-- Job Status Row -->
+                <div class="job-status-row">
                   <ng-container [ngSwitch]="job.state">
-                    <!-- When active, show a progress circle reflecting job.progress -->
+                    <!-- Active jobs show a progress spinner -->
                     <mat-progress-spinner
                       *ngSwitchCase="'active'"
                       [value]="job.progress"
@@ -47,11 +49,14 @@
                     <mat-icon *ngSwitchDefault class="status-icon">hourglass_empty</mat-icon>
                   </ng-container>
                 </div>
-                <button mat-icon-button color="warn" (click)="dismissJob(job.jobId)" class="archive-button">
-                  <mat-icon>archive</mat-icon>
-                </button>
+                <!-- Job Actions Row -->
+                <div class="job-action">
+                  <button mat-icon-button color="warn" (click)="dismissJob(job.jobId)" class="archive-button">
+                    <mat-icon>archive</mat-icon>
+                  </button>
+                </div>
               </div>
-            </button>
+            </div>
           </ng-container>
         </ng-container>
         <ng-template #noJobs>

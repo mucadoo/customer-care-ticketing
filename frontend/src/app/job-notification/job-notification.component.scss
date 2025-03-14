@@ -1,5 +1,5 @@
 .job-menu {
-  width: 450px !important;
+  width: 700px !important;  /* Increased overall width */
   box-sizing: border-box;
 }
 
@@ -20,30 +20,31 @@
 }
 
 .job-item-container {
-  margin-bottom: 12px;
+  margin-bottom: 16px;
+  cursor: default; /* No pointer cursor for the container */
 }
 
 .job-item {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
   width: 100%;
-  border: 1px solid #e0e0e0;
+  border: 2px solid #e0e0e0;  /* Thicker border */
   border-radius: 4px;
-  padding: 10px;
+  padding: 16px;
   background-color: #fff;
   box-sizing: border-box;
 }
 
 .job-info {
-  flex: 1;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 8px;
+  margin-bottom: 12px;
 }
 
 .job-title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: bold;
 }
 
@@ -52,27 +53,41 @@
   color: #666;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 }
 
-.job-status {
+.job-status-row {
   display: flex;
+  justify-content: center;
   align-items: center;
-  margin-right: 12px;
+  margin-bottom: 12px;
 }
 
 .status-icon {
-  font-size: 28px;
+  font-size: 32px;
+  /* Ensure icons don’t get truncated */
+  line-height: 32px;
 }
 
 .completed-icon {
-  color: green;
+  color: green !important;
 }
 
 .failed-icon {
-  color: red;
+  color: red !important;
+}
+
+/* Optionally style the progress spinner (active state) */
+.mat-progress-spinner circle {
+  stroke: #3f51b5; /* Use primary color if needed */
+}
+
+.job-action {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .archive-button {
-  align-self: center;
+  cursor: pointer; /* Only the archive button shows a pointer */
 }
