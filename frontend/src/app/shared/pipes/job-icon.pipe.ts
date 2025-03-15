@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import {JobNotification} from "../../api/job-state.service";
+import {JobNotification} from "../../models/job-notification.model";
 
 @Pipe({
   name: 'jobStatus'
@@ -10,14 +10,14 @@ export class JobStatusPipe implements PipeTransform {
     let cssClass = 'default-icon';
     let tooltip = 'Job waiting to start';
 
-    if (job.state === 'active' && job.progress && typeof job.progress === 'object') {
+    if (job.state === 'active' && job.progress) {
       const { success, error, total } = job.progress;
       const processed = success + error;
       const left = total - processed;
       tooltip = `⏳ In progress: ${processed} processed, ${left} left`;
       icon = 'autorenew';
       cssClass = 'active-icon';
-    } else if (job.state === 'completed' && job.progress && typeof job.progress === 'object') {
+    } else if (job.state === 'completed' && job.progress) {
       const { success, error, total } = job.progress;
       if (error === 0) {
         icon = 'check_circle';
@@ -30,8 +30,8 @@ export class JobStatusPipe implements PipeTransform {
         cssClass = 'error-icon';
       }
       const parts = [];
-      if (success > 0) { parts.push(`✅ Success: ${success}`); }
-      if (error > 0) { parts.push(`❌ Errors: ${error}`); }
+      if (success > 0) parts.push(`✅ Success: ${success}`);
+      if (error > 0) parts.push(`❌ Errors: ${error}`);
       tooltip = parts.length ? `${parts.join(' | ')} (Total: ${total})` : `Completed: ${total} processed`;
     } else if (job.state === 'failed') {
       icon = 'error';

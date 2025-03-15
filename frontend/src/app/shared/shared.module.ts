@@ -7,4 +7,4 @@ import { JobStatusPipe } from './pipes/job-icon.pipe';
   imports: [CommonModule],
   exports: [JobStatusPipe]
 })
-export class SharedModule { }
+export class SharedModule {}

@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { Message } from '../models/api-message.model';
+import { Message } from '../models/message.model';
 
 @Component({
   selector: 'app-ticket-messages',

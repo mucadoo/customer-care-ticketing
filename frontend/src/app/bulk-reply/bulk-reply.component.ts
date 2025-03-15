@@ -34,7 +34,7 @@ export class BulkReplyComponent implements OnInit {
       ticketIds: this.data.selectedTicketIds,
       senderType: 'operator' as const,
       senderId: localStorage.getItem('senderId')!,
-      text: this.bulkReplyForm.value.text!,
+      text: this.bulkReplyForm.value.text!
     };
     this.ticketsService.sendBulkReply(payload).subscribe(response => {
       console.log('Bulk reply job started with jobId:', response.jobId);

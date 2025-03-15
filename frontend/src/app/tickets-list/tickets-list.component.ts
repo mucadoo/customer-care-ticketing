@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { BulkReplyComponent, BulkReplyData } from '../bulk-reply/bulk-reply.component';
 import { TicketsService } from '../api/tickets.service';
 import { BehaviorSubject, combineLatest, Observable, Subscription, of } from 'rxjs';
-import { map, startWith, switchMap } from 'rxjs/operators';
+import { map, startWith } from 'rxjs/operators';
 import { Ticket } from '../models/ticket.model';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 
@@ -14,14 +14,11 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
   styleUrls: ['./tickets-list.component.scss']
 })
 export class TicketsListComponent implements OnInit, OnDestroy {
-  // All tickets stored in a BehaviorSubject
   protected ticketsSubject = new BehaviorSubject<Ticket[]>([]);
   tickets$ = this.ticketsSubject.asObservable();
 
-  // Form control for filter (all/resolved/unresolved)
   filterStatus = this.fb.control<'all' | 'resolved' | 'unresolved'>('all');
 
-  // Derived observable for filtered tickets
   filteredTickets$: Observable<Ticket[]> = combineLatest([
     this.tickets$,
     this.filterStatus.valueChanges.pipe(startWith('all'))
@@ -34,7 +31,6 @@ export class TicketsListComponent implements OnInit, OnDestroy {
     })
   );
 
-  // Selected ticket IDs maintained as a Set for fast lookup
   selectedTicketIds = new Set<number>();
   selectAll = false;
 
@@ -47,7 +43,6 @@ export class TicketsListComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    // Load initial tickets from API (and mark each as not selected)
     this.api.getTickets().pipe(
       map(tickets => tickets.map(ticket => ({ ...ticket, selected: false })))
     ).subscribe(tickets => {
@@ -56,20 +51,13 @@ export class TicketsListComponent implements OnInit, OnDestroy {
       this.selectedTicketIds.clear();
     });
 
-    // Subscribe to filtered tickets to update the selectAll flag
     this.subscriptions.add(
       this.filteredTickets$.subscribe(filtered => {
-        // If there are filtered tickets and all are selected, set selectAll true
-        if (filtered.length > 0 && filtered.every(ticket => ticket.selected)) {
-          this.selectAll = true;
-        } else {
-          this.selectAll = false;
-        }
+        this.selectAll = filtered.length > 0 && filtered.every(ticket => ticket.selected);
       })
     );
   }
 
-  // Returns the current filtered tickets as an array from the BehaviorSubject
   getFilteredTickets(): Ticket[] {
     const filter = this.filterStatus.value;
     const tickets = this.ticketsSubject.value;
@@ -79,7 +67,6 @@ export class TicketsListComponent implements OnInit, OnDestroy {
     return tickets.filter(ticket => ticket.status.toLowerCase() === filter);
   }
 
-  // When an individual ticket is toggled
   onTicketSelectionChange(ticket: Ticket): void {
     const updatedTickets = this.ticketsSubject.value.map(t => {
       if (t.id === ticket.id) {
@@ -95,13 +82,11 @@ export class TicketsListComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Toggle select all for currently filtered tickets
   toggleSelectAll(event: MatCheckboxChange): void {
     const newVal = event.checked;
     this.selectAll = newVal;
     const filtered = this.getFilteredTickets();
 
-    // Update tickets in the global array for only filtered items
     const updatedTickets = this.ticketsSubject.value.map(ticket => {
       if (filtered.find(t => t.id === ticket.id)) {
         return { ...ticket, selected: newVal };
@@ -110,7 +95,6 @@ export class TicketsListComponent implements OnInit, OnDestroy {
     });
     this.ticketsSubject.next(updatedTickets);
 
-    // Update the set of selected ticket IDs based on filtered tickets
     if (newVal) {
       filtered.forEach(ticket => this.selectedTicketIds.add(ticket.id));
     } else {

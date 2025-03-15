@@ -10,10 +10,10 @@
 
 .notification-btn {
   position: relative;
-  padding: 0;              /* Remove default padding to avoid clipping */
-  width: 64px;             /* Set explicit dimensions */
+  padding: 0;
+  width: 64px;
   height: 64px;
-  overflow: visible;        /* Allow content to show */
+  overflow: visible;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -35,7 +35,6 @@
   }
 }
 
-/* Wrap the icon to ensure it’s centered */
 .icon-wrapper {
   display: flex;
   align-items: center;
@@ -44,7 +43,6 @@
   height: 64px;
 }
 
-/* Enlarge the icon */
 .big-icon {
   font-size: 48px;
   line-height: 48px;
@@ -53,11 +51,10 @@
   display: block;
 }
 
-/* Adjust the badge content positioning relative to the new button size */
 :host ::ng-deep .notification-btn .mat-badge-content {
-  top: 4px;               /* Adjust vertical offset as needed */
-  right: 0px !important;             /* Adjust horizontal offset as needed */
-  transform: none;        /* Remove extra transforms if not needed */
+  top: 4px;
+  right: 0 !important;
+  transform: none;
 }
 
 .menu-content {

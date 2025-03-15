@@ -10,7 +10,7 @@ export class TicketDetailComponent {
   @Input() ticket!: Ticket;
   @Output() resolve = new EventEmitter<void>();
 
-  onResolve() {
+  onResolve(): void {
     this.resolve.emit();
   }
 }

@@ -2,7 +2,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { TicketsService } from '../api/tickets.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Ticket } from '../models/ticket.model';
-import { Message } from '../models/api-message.model';
+import { Message } from '../models/message.model';
 import { Observable, of } from 'rxjs';
 import { shareReplay, tap, map, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
@@ -30,7 +30,7 @@ export class TicketContainerComponent implements OnInit {
   }
 
   constructor(
-    private api: TicketsService,
+    private ticketService: TicketsService,
     private fb: FormBuilder,
     private router: Router
   ) {
@@ -39,50 +39,37 @@ export class TicketContainerComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {}
 
-  private loadTicket() {
-    this.ticket$ = this.api.getTicket(this._ticketId).pipe(
-      // Map the ticket if needed (e.g., adding default fields)
-      map(ticket => ({
-        ...ticket,
-        selected: false,
-      }) as Ticket),
+  private loadTicket(): void {
+    this.ticket$ = this.ticketService.getTicket(this._ticketId).pipe(
       tap(ticket => {
-        // Enable or disable the message form based on ticket status
-        if (ticket.status === 'resolved') {
-          this.messageForm.disable();
-        } else {
-          this.messageForm.enable();
-        }
+        ticket.status === 'resolved' ? this.messageForm.disable() : this.messageForm.enable();
       }),
-      shareReplay(1) // Cache the response to avoid multiple API calls
+      shareReplay(1)
     );
   }
 
-  private loadMessages() {
-    this.messages$ = this.api.getTicketMessages(this._ticketId).pipe(
+  private loadMessages(): void {
+    this.messages$ = this.ticketService.getTicketMessages(this._ticketId).pipe(
       catchError(err => {
-        // Navigate to not-found if error occurs
-        this.router.navigate(["home", "tickets", "not-found"]);
+        this.router.navigate(['home', 'tickets', 'not-found']);
         return of([]);
       })
     );
   }
 
-  closeTicket() {
-    this.api.resolveTicket(this._ticketId).subscribe(() => {
-      // Reload ticket data to reflect the new status
+  closeTicket(): void {
+    this.ticketService.resolveTicket(this._ticketId).subscribe(() => {
       this.loadTicket();
     });
   }
 
-  sendMessage() {
+  sendMessage(): void {
     const { text } = this.messageForm.value;
     const senderType = "operator";
-    const senderId = "operator1";
-    this.api.addMessageToTicket(this._ticketId, { text, senderType, senderId }).subscribe(() => {
-      // Reload ticket and messages after sending a message
+    const senderId = localStorage.getItem('senderId')!;
+    this.ticketService.addMessageToTicket(this._ticketId, { text, senderType, senderId }).subscribe(() => {
       this.loadTicket();
       this.loadMessages();
     });

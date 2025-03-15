@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
-import { JobStateService, JobNotification } from './job-state.service';
+import {JobStateService} from "./job-state.service";
+import {JobNotification} from "../models/job-notification.model";
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class JobWebSocketService {
   private socket!: Socket;
@@ -18,20 +19,18 @@ export class JobWebSocketService {
     this.socket = io('http://localhost:8080');
 
     this.socket.on('connect', () => {
-      console.log('Connected to Socket.IO server as ' + senderId);
+      console.log(`Connected to Socket.IO server as ${senderId}`);
       this.socket.emit('subscribeSender', senderId);
     });
 
     this.socket.on('initialJobList', (jobs: JobNotification[]) => {
       console.log('Initial job list received:', jobs);
-      jobs.forEach(job => {
-        this.jobStateService.updateJob(job);
-      });
+      jobs.forEach(job => this.jobStateService.updateJob(job));
     });
 
-    this.socket.on('jobUpdate', (data: JobNotification) => {
-      console.log('Job update received:', data);
-      this.jobStateService.updateJob(data);
+    this.socket.on('jobUpdate', (job: JobNotification) => {
+      console.log('Job update received:', job);
+      this.jobStateService.updateJob(job);
     });
 
     this.socket.on('jobCreated', (job: JobNotification) => {
@@ -39,11 +38,11 @@ export class JobWebSocketService {
       this.jobStateService.updateJob(job);
     });
 
-    this.socket.on('connect_error', (err) => {
+    this.socket.on('connect_error', err => {
       console.error('WebSocket connection error:', err);
     });
 
-    this.socket.on('disconnect', (reason) => {
+    this.socket.on('disconnect', reason => {
       console.log('WebSocket disconnected:', reason);
     });
   }

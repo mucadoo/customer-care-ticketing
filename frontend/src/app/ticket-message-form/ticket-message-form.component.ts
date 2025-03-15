@@ -8,10 +8,10 @@ import { FormGroup } from '@angular/forms';
 })
 export class TicketMessageFormComponent {
   @Input() form!: FormGroup;
-  @Input() disabled: boolean = false;
+  @Input() disabled = false;
   @Output() submitMessage = new EventEmitter<void>();
 
-  onSubmit() {
+  onSubmit(): void {
     if (this.form.valid) {
       this.submitMessage.emit();
     }

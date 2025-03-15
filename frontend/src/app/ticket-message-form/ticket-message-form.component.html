@@ -1,9 +1,9 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="form">
-  <mat-form-field>
-    <mat-label>Message</mat-label>
-    <input matInput formControlName="text">
-  </mat-form-field>
-  <button mat-raised-button type="submit" color="primary" [disabled]="form.invalid || disabled">
-    Send
-  </button>
+    <mat-form-field appearance="fill">
+        <mat-label>Message</mat-label>
+        <input matInput formControlName="text">
+    </mat-form-field>
+    <button mat-raised-button type="submit" color="primary" [disabled]="form.invalid || disabled">
+        Send
+    </button>
 </form>

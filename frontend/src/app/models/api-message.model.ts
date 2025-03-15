@@ -1,7 +1,7 @@
-export type Message = {
+export interface ApiMessage {
   id: number;
   senderType: "operator" | "customer";
   senderId: string;
   text: string;
-  createdAt: Date;
-};
+  createdAt: string;
+}
