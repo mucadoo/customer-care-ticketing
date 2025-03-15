@@ -3,6 +3,7 @@ import { Type as T } from "@sinclair/typebox";
 import { TypeBoxTypeProvider } from "@fastify/type-provider-typebox";
 import { Queue } from "bullmq";
 import { BadRequest } from "http-errors";
+import {QUEUE_FRIENDLY_NAMES} from "../../../config/queue-config";
 
 const bulkReplyBody = T.Object({
   ticketIds: T.Array(T.Number()),
@@ -35,7 +36,9 @@ export async function routeBulkReply(instance: FastifyInstance) {
       if (!ticketIds || ticketIds.length === 0) {
         throw new BadRequest("No ticket IDs provided");
       }
-      const jobName = `${senderType} - ${text}`;
+
+      const jobName = `[${QUEUE_FRIENDLY_NAMES[bulkReplyQueue.name]}] : "${text}"`;
+
       const job = await bulkReplyQueue.add(jobName, {
         ticketIds,
         senderType,
