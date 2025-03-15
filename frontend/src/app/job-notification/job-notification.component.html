@@ -1,6 +1,13 @@
 <div class="job-notification-container">
-  <button mat-icon-button [matBadge]="activeJobCount" matBadgeColor="warn" [matMenuTriggerFor]="jobMenu">
-    <mat-icon>notifications</mat-icon>
+  <button mat-icon-button
+          class="notification-btn"
+          [matBadge]="activeJobCount"
+          [matBadgeHidden]="activeJobCount === 0"
+          matBadgeColor="accent"
+          [matMenuTriggerFor]="jobMenu">
+    <div class="icon-wrapper">
+      <mat-icon class="big-icon">alarm</mat-icon>
+    </div>
   </button>
 
   <mat-menu #jobMenu="matMenu" class="job-menu" [overlapTrigger]="false">

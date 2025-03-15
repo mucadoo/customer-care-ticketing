@@ -23,7 +23,7 @@ export class JobNotificationComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.jobWsService.connect(this.currentSenderId);
     this.subscription = this.jobStateService.jobs$.subscribe(jobs => {
-      this.activeJobCount = jobs.length;
+      this.activeJobCount = jobs.filter(job => job.state === 'active' || job.state === 'waiting').length;
     });
   }
 
