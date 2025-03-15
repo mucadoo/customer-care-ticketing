@@ -10,14 +10,16 @@ const redisConfig = {
   port: Number(process.env.REDIS_PORT) || 6379,
 };
 
-const concurrencyLimit = 10;
-const artificialDelaySeconds = 10;
+const workerConcurrency = 2;
+const ticketConcurrencyLimit = 10;
+const artificialMaxDelaySeconds = 10;
 
 const bulkReplyWorkerService = new BulkReplyWorkerService(
-  pool,
-  redisConfig,
-  concurrencyLimit,
-  artificialDelaySeconds
+    pool,
+    redisConfig,
+    workerConcurrency,
+    ticketConcurrencyLimit,
+    artificialMaxDelaySeconds,
 );
 
 export const index = bulkReplyWorkerService.getWorker();

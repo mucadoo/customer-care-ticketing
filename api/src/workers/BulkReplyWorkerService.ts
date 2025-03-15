@@ -18,25 +18,27 @@ interface BulkReplyProgress {
 }
 
 export class BulkReplyWorkerService {
-  private worker: Worker;
+  private readonly worker: Worker;
   private pool: Pool;
-  private concurrencyLimit: number;
-  private limit: ReturnType<typeof pLimit>;
-  private artificialDelaySeconds: number;
+  private readonly ticketConcurrencyLimit: number;
+  private readonly artificialMaxDelaySeconds: number;
+  private readonly workerConcurrency: number;
 
   constructor(
     pool: Pool,
     redisConfig: { host: string; port: number },
-    concurrencyLimit = 10,
-    artificialDelaySeconds = 0
+    workerConcurrency = 5,
+    ticketConcurrencyLimit = 10,
+    artificialMaxDelaySeconds = 0,
   ) {
     this.pool = pool;
-    this.concurrencyLimit = concurrencyLimit;
-    this.limit = pLimit(this.concurrencyLimit);
-    this.artificialDelaySeconds = artificialDelaySeconds;
+    this.workerConcurrency = workerConcurrency;
+    this.ticketConcurrencyLimit = ticketConcurrencyLimit;
+    this.artificialMaxDelaySeconds = artificialMaxDelaySeconds;
 
     this.worker = new Worker("bulkReplyQueue", this.processJob.bind(this), {
       connection: redisConfig,
+      concurrency: this.workerConcurrency,
     });
 
     this.registerEvents();
@@ -63,9 +65,8 @@ export class BulkReplyWorkerService {
   private async processTicket(ticketId: number, job: Job<BulkReplyJobData>, progress: BulkReplyProgress): Promise<void> {
     const client = await this.getDbClient();
     try {
-      // artificial delay for testing purposes
-      if (this.artificialDelaySeconds > 0) {
-        await this.delay(Math.random() * (this.artificialDelaySeconds - 1) + 1);
+      if (this.artificialMaxDelaySeconds > 0) {
+        await this.delay(Math.random() * (this.artificialMaxDelaySeconds - 1) + 1);
       }
       const [{ ok }] = await isTicketUnresolved.run({ ticketId }, client);
       if (ok) {
@@ -94,8 +95,9 @@ export class BulkReplyWorkerService {
     const { ticketIds } = job.data;
     const total = ticketIds.length;
     const progress: BulkReplyProgress = { success: 0, error: 0, total };
+    const limiter = pLimit(this.ticketConcurrencyLimit);
     const tasks = ticketIds.map(ticketId =>
-      this.limit(() => this.processTicket(ticketId, job, progress))
+      limiter(() => this.processTicket(ticketId, job, progress))
     );
     await Promise.all(tasks);
   }
