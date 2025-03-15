@@ -65,6 +65,7 @@ export class BulkReplyWorkerService {
   private async processTicket(ticketId: number, job: Job<BulkReplyJobData>, progress: BulkReplyProgress): Promise<void> {
     const client = await this.getDbClient();
     try {
+
       if (this.artificialMaxDelaySeconds > 0) {
         await this.delay(Math.random() * (this.artificialMaxDelaySeconds - 1) + 1);
       }

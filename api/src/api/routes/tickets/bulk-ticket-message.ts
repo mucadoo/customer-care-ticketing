@@ -36,7 +36,7 @@ export async function routeBulkReply(instance: FastifyInstance) {
         throw new BadRequest("No ticket IDs provided");
       }
 
-      const jobName = `[Bulk Ticket Reply] : "${text}"`;
+      const jobName = `[Bulk Ticket Reply]: "${text}"`;
 
       const job = await bulkReplyQueue.add(jobName, {
         ticketIds,

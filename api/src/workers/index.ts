@@ -12,6 +12,7 @@ const redisConfig = {
 
 const workerConcurrency = 2;
 const ticketConcurrencyLimit = 10;
+//Artificial delay for test purposes (set to 0 to disable)
 const artificialMaxDelaySeconds = 10;
 
 const bulkReplyWorkerService = new BulkReplyWorkerService(

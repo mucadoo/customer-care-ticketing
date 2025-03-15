@@ -41,7 +41,7 @@ export class JobNotificationSocket {
             const senderJobs = jobs
                 .filter(job => job.data.senderId === senderId)
                 .map(job => this.formatJobData(job, name));
-            socket.emit(JobEvents.INITIAL_JOB_LIST, { queue: name, jobs: senderJobs });
+            socket.emit(JobEvents.INITIAL_JOB_LIST, senderJobs);
           } catch (err) {
             console.error(`Error fetching initial jobs for queue ${name}:`, err);
           }
@@ -72,8 +72,8 @@ export class JobNotificationSocket {
       if (!job) return;
       const { senderId } = job.data;
       if (!senderId) return;
-      const message = this.formatJobData(job, queueName);
-      this.io.to(senderId).emit(JobEvents.JOB_CREATED, message);
+      const newJob = this.formatJobData(job, queueName);
+      this.io.to(senderId).emit(JobEvents.JOB_CREATED, newJob);
     });
   }
 
