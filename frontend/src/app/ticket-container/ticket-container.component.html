@@ -1,0 +1,15 @@
+<div id="container">
+  <ng-container *ngIf="ticket$ | async as ticket">
+    <app-ticket-detail [ticket]="ticket" (resolve)="closeTicket()"></app-ticket-detail>
+    <mat-divider></mat-divider>
+    <ng-container *ngIf="messages$ | async as messages">
+      <app-ticket-messages [messages]="messages"></app-ticket-messages>
+    </ng-container>
+    <mat-divider></mat-divider>
+    <app-ticket-message-form
+      [form]="messageForm"
+      [disabled]="ticket.status === 'resolved'"
+      (submitMessage)="sendMessage()">
+    </app-ticket-message-form>
+  </ng-container>
+</div>

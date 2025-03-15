@@ -4,7 +4,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { TicketsListComponent } from './tickets-list/tickets-list.component';
-import { TicketComponent } from './ticket/ticket.component';
 import { TicketsService } from './api/tickets.service';
 import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
@@ -30,13 +29,20 @@ import {MatProgressBarModule} from "@angular/material/progress-bar";
 import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 import {SharedModule} from "./shared/shared.module";
 import {MatTooltipModule} from "@angular/material/tooltip";
+import {TicketContainerComponent} from "./ticket-container/ticket-container.component";
+import {TicketDetailComponent} from "./ticket-detail/ticket-detail.component";
+import {TicketMessagesComponent} from "./ticket-messages/ticket-messages.component";
+import {TicketMessageFormComponent} from "./ticket-message-form/ticket-message-form.component";
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     TicketsListComponent,
-    TicketComponent,
+    TicketContainerComponent,
+    TicketDetailComponent,
+    TicketMessagesComponent,
+    TicketMessageFormComponent,
     TicketNotFoundComponent,
     BulkReplyComponent,
     JobNotificationComponent
