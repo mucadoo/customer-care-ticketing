@@ -3,11 +3,10 @@ import { FormBuilder } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { BulkReplyComponent, BulkReplyData } from '../bulk-reply/bulk-reply.component';
 import { TicketsService } from '../api/tickets.service';
-import { concat, map, Observable, switchMap, of } from 'rxjs';
-import { take } from 'rxjs/operators';
-import {Ticket} from "../models/ticket.model";
-
-type ItemList = Ticket & {};
+import { Observable, BehaviorSubject, combineLatest, of } from 'rxjs';
+import { map, switchMap, startWith } from 'rxjs/operators';
+import { Ticket } from '../models/ticket.model';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 
 @Component({
   selector: 'app-tickets-list',
@@ -15,9 +14,24 @@ type ItemList = Ticket & {};
   styleUrls: ['./tickets-list.component.scss']
 })
 export class TicketsListComponent implements OnInit {
-  tickets: Observable<ItemList[]> = of([]);
-  selectedTicketIds: number[] = [];
-  filterStatus = this.fb.control<"all" | "resolved" | "unresolved">("all");
+  protected ticketsSubject = new BehaviorSubject<Ticket[]>([]);
+  tickets$ = this.ticketsSubject.asObservable();
+
+  filterStatus = this.fb.control<'all' | 'resolved' | 'unresolved'>('all');
+
+  filteredTickets$: Observable<Ticket[]> = combineLatest([
+    this.tickets$,
+    this.filterStatus.valueChanges.pipe(startWith('all'))
+  ]).pipe(
+    map(([tickets, filter]) => {
+      if (!filter || filter === 'all') {
+        return tickets;
+      }
+      return tickets.filter(ticket => ticket.status.toLowerCase() === filter);
+    })
+  );
+
+  selectedTicketIds = new Set<number>();
   selectAll = false;
 
   constructor(
@@ -27,59 +41,60 @@ export class TicketsListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.tickets = concat(
-      this.api.getTickets().pipe(
-        map(tickets => tickets.map(ticket => ({ ...ticket, selected: false })))
-      ),
-      this.filterStatus.valueChanges.pipe(
-        map(value => {
-          if (!value || value === "all") return undefined;
-          return value;
-        }),
-        switchMap(status => this.api.getTickets(status).pipe(
-          map(tickets => tickets.map(ticket => ({ ...ticket, selected: false })))
-        ))
-      )
-    );
+    this.api.getTickets().pipe(
+      map(tickets => tickets.map(ticket => ({ ...ticket, selected: false })))
+    ).subscribe(tickets => {
+      this.ticketsSubject.next(tickets);
+      this.selectAll = false;
+      this.selectedTicketIds.clear();
+    });
   }
 
   onTicketSelectionChange(ticket: Ticket): void {
     if (ticket.selected) {
-      if (!this.selectedTicketIds.includes(ticket.id)) {
-        this.selectedTicketIds.push(ticket.id);
-      }
+      this.selectedTicketIds.add(ticket.id);
     } else {
-      this.selectedTicketIds = this.selectedTicketIds.filter(id => id !== ticket.id);
+      this.selectedTicketIds.delete(ticket.id);
       this.selectAll = false;
     }
   }
 
-  toggleSelectAll(): void {
-    this.selectAll = !this.selectAll;
-    this.tickets.pipe(take(1)).subscribe(tickets => {
-      tickets.forEach(ticket => {
-        ticket.selected = this.selectAll;
+  toggleSelectAll(event: MatCheckboxChange): void {
+    const newVal = event.checked;
+    this.selectAll = newVal;
+    this.filteredTickets$.subscribe(filtered => {
+      const updatedTickets = this.ticketsSubject.value.map(ticket => {
+        if (filtered.some(t => t.id === ticket.id)) {
+          ticket.selected = newVal;
+        }
+        return ticket;
       });
-      if (this.selectAll) {
-        this.selectedTicketIds = tickets.map(ticket => ticket.id);
+      this.ticketsSubject.next([...updatedTickets]);
+
+      if (newVal) {
+        filtered.forEach(ticket => this.selectedTicketIds.add(ticket.id));
       } else {
-        this.selectedTicketIds = [];
+        filtered.forEach(ticket => this.selectedTicketIds.delete(ticket.id));
       }
-    });
+    }).unsubscribe();
+  }
+
+  trackByTicket(index: number, ticket: Ticket): number {
+    return ticket.id;
   }
 
   openBulkReplyModal(): void {
     const dialogRef = this.dialog.open<BulkReplyComponent, BulkReplyData, any>(BulkReplyComponent, {
       width: '500px',
-      data: { selectedTicketIds: this.selectedTicketIds }
+      data: { selectedTicketIds: Array.from(this.selectedTicketIds) }
     });
 
     dialogRef.afterClosed().subscribe(result => {
       console.log('Bulk reply modal closed', result);
-      this.selectedTicketIds = [];
-      this.tickets.pipe(take(1)).subscribe(tickets => {
-        tickets.forEach(ticket => ticket.selected = false);
-      });
+      // Reset selection after modal closes.
+      const resetTickets = this.ticketsSubject.value.map(ticket => ({ ...ticket, selected: false }));
+      this.ticketsSubject.next(resetTickets);
+      this.selectedTicketIds.clear();
       this.selectAll = false;
     });
   }
