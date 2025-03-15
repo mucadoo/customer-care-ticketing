@@ -36,7 +36,7 @@
                   <div class="job-icon">
                     <ng-container *ngIf="job.state === 'active'; else iconTemplate">
                       <mat-progress-spinner
-                        [value]="(job.progress?.success ?? 0) / (job.progress?.total ?? 1) * 100"
+                        [value]="((job.progress?.success ?? 0) + (job.progress?.error ?? 0)) / (job.progress?.total ?? 1) * 100"
                         diameter="28"
                         mode="determinate"
                         matTooltip="{{ (job | jobStatus).tooltip }}"
