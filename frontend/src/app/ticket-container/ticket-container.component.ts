@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Ticket } from '../models/ticket.model';
 import { Message } from '../models/message.model';
 import { Observable, of } from 'rxjs';
-import { shareReplay, tap, map, catchError } from 'rxjs/operators';
+import { shareReplay, tap, catchError } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
 @Component({
