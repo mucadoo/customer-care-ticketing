@@ -14,6 +14,7 @@ async function getDb() {
 
 const concurrencyLimit = 10;
 const limit = pLimit(concurrencyLimit);
+//artificial delay for test purposes
 const delay = (s: number) => new Promise(resolve => setTimeout(resolve, s * 1000));
 
 const bulkReplyWorker = new Worker(
@@ -27,9 +28,10 @@ const bulkReplyWorker = new Worker(
     const processTicket = async (ticketId: number) => {
       const client = await getDb();
       try {
+        //artificial delay for test purposes
+        await delay(Math.random() * (10 - 1) + 1);
         const [{ ok }] = await isTicketUnresolved.run({ ticketId }, client);
         if (ok) {
-          await delay(Math.random() * (10 - 1) + 1);
           const messages = await addMessageToTicket.run(
             { ticketId, text, senderType, senderId },
             client

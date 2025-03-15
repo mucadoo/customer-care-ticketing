@@ -66,6 +66,16 @@ export class JobNotificationSocket {
         failedReason,
       });
     });
+
+    this.bulkReplyQueueEvents.on("waiting", async ({ jobId }) => {
+      console.log(`Job ${jobId} is waiting (created)`);
+      const job = await this.bulkReplyQueue.getJob(jobId);
+      if (!job) return;
+      const { senderId } = job.data;
+      if (!senderId) return;
+      const message = this.formatJobData(job);
+      this.io.to(senderId).emit("jobCreated", message);
+    });
   }
 
   private formatJobData(job: any) {
