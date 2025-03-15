@@ -130,11 +130,12 @@ export class TicketsListComponent implements OnInit, OnDestroy {
 
     dialogRef.afterClosed().subscribe(result => {
       console.log('Bulk reply modal closed', result);
-      // Reset selection after modal closes
-      const resetTickets = this.ticketsSubject.value.map(ticket => ({ ...ticket, selected: false }));
-      this.ticketsSubject.next(resetTickets);
-      this.selectedTicketIds.clear();
-      this.selectAll = false;
+      if (result) {
+        const resetTickets = this.ticketsSubject.value.map(ticket => ({ ...ticket, selected: false }));
+        this.ticketsSubject.next(resetTickets);
+        this.selectedTicketIds.clear();
+        this.selectAll = false;
+      }
     });
   }
 
