@@ -6,10 +6,6 @@ import {ApiMessage} from '../models/api-message.model';
 import {Ticket} from '../models/ticket.model';
 import {Message} from '../models/message.model';
 
-interface ApiResponse<T> {
-    data: T;
-}
-
 @Injectable({
     providedIn: 'root'
 })
@@ -19,37 +15,38 @@ export class TicketsService {
     constructor(private http: HttpClient) {
     }
 
-    private transformDate<T extends { createdAt: string }>(
-        item: T
-    ): Omit<T, 'createdAt'> & { createdAt: Date } {
-        return {...item, createdAt: new Date(item.createdAt)};
-    }
-
-
     getTickets(status?: "resolved" | "unresolved"): Observable<Ticket[]> {
-        return this.http.get<ApiResponse<ApiTicket[]>>(`${this.baseUrl}/tickets`, {params: status ? {status} : {}}).pipe(
-            map(response =>
-                response.data.map(ticket => ({
-                    ...this.transformDate(ticket)
-                } as Ticket))
-            )
-        );
+        return this.http.get<{ data: ApiTicket[] }>(`${this.baseUrl}/tickets`, {params: status ? {status} : {}})
+            .pipe(
+                map(response =>
+                    response.data.map(ticket => ({
+                        ...ticket,
+                        createdAt: new Date(ticket.createdAt)
+                    }) as Ticket)
+                )
+            );
     }
 
     getTicket(ticketId: number): Observable<Ticket> {
-        return this.http.get<ApiTicket>(`${this.baseUrl}/tickets/${ticketId}`).pipe(
-            map(apiTicket => ({
-                ...this.transformDate(apiTicket)
-            } as Ticket))
-        );
+        return this.http.get<ApiTicket>(`${this.baseUrl}/tickets/${ticketId}`)
+            .pipe(
+                map(apiTicket => ({
+                    ...apiTicket,
+                    createdAt: new Date(apiTicket.createdAt)
+                }) as Ticket)
+            );
     }
 
     getTicketMessages(ticketId: number): Observable<Message[]> {
-        return this.http.get<ApiResponse<ApiMessage[]>>(`${this.baseUrl}/tickets/${ticketId}/messages`).pipe(
-            map(response =>
-                response.data.map(message => this.transformDate(message)) as Message[]
-            )
-        );
+        return this.http.get<{ data: ApiMessage[] }>(`${this.baseUrl}/tickets/${ticketId}/messages`)
+            .pipe(
+                map(response =>
+                    response.data.map(message => ({
+                        ...message,
+                        createdAt: new Date(message.createdAt)
+                    }) as Message)
+                )
+            );
     }
 
     resolveTicket(ticketId: number): Observable<any> {
@@ -57,9 +54,13 @@ export class TicketsService {
     }
 
     addMessageToTicket(ticketId: number, message: Pick<Message, "text" | "senderType" | "senderId">): Observable<Message> {
-        return this.http.post<ApiMessage>(`${this.baseUrl}/tickets/${ticketId}/messages`, message).pipe(
-            map(response => this.transformDate(response) as Message)
-        );
+        return this.http.post<ApiMessage>(`${this.baseUrl}/tickets/${ticketId}/messages`, message)
+            .pipe(
+                map(apiMessage => ({
+                    ...apiMessage,
+                    createdAt: new Date(apiMessage.createdAt)
+                }) as Message)
+            );
     }
 
     sendBulkReply(payload: {
