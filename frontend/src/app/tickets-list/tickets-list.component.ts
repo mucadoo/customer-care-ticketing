@@ -3,7 +3,7 @@ import { FormBuilder } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { BulkReplyComponent, BulkReplyData } from '../bulk-reply/bulk-reply.component';
 import { TicketsService } from '../api/tickets.service';
-import { BehaviorSubject, combineLatest, Observable, Subscription, of } from 'rxjs';
+import { BehaviorSubject, combineLatest, Observable, Subscription } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { Ticket } from '../models/ticket.model';
 import { MatCheckboxChange } from '@angular/material/checkbox';
@@ -14,9 +14,8 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
   styleUrls: ['./tickets-list.component.scss']
 })
 export class TicketsListComponent implements OnInit, OnDestroy {
-  protected ticketsSubject = new BehaviorSubject<Ticket[]>([]);
+  ticketsSubject = new BehaviorSubject<Ticket[]>([]);
   tickets$ = this.ticketsSubject.asObservable();
-
   filterStatus = this.fb.control<'all' | 'resolved' | 'unresolved'>('all');
 
   filteredTickets$: Observable<Ticket[]> = combineLatest([
