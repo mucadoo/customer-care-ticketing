@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { JobStateService, JobNotification } from '../api/job-state.service';
 import { JobWebSocketService } from '../api/job-websocket.service';
@@ -9,11 +9,15 @@ import { JobWebSocketService } from '../api/job-websocket.service';
   styleUrls: ['./job-notification.component.scss']
 })
 export class JobNotificationComponent implements OnInit, OnDestroy {
+  @ViewChild('notifButton', { static: true }) notifButton!: ElementRef;
+
   jobs$ = this.jobStateService.jobs$;
-  currentSenderId = localStorage.getItem('senderId')!;
   activeJobCount = 0;
   selectedFilter: string = 'all';
+  highlight = false;
+
   private subscription!: Subscription;
+  private previousActiveCount = 0;
 
   constructor(
     private jobStateService: JobStateService,
@@ -21,10 +25,24 @@ export class JobNotificationComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    this.jobWsService.connect(this.currentSenderId);
+    const senderId = localStorage.getItem('senderId')!;
+    this.jobWsService.connect(senderId);
+
     this.subscription = this.jobStateService.jobs$.subscribe(jobs => {
-      this.activeJobCount = jobs.filter(job => job.state === 'active' || job.state === 'waiting').length;
+      const newCount = jobs.filter(job => job.state === 'active' || job.state === 'waiting').length;
+      if (newCount > this.previousActiveCount) {
+        this.triggerHighlight();
+      }
+      this.previousActiveCount = newCount;
+      this.activeJobCount = newCount;
     });
+  }
+
+  private triggerHighlight(): void {
+    this.highlight = true;
+    setTimeout(() => {
+      this.highlight = false;
+    }, 3000);
   }
 
   ngOnDestroy(): void {
