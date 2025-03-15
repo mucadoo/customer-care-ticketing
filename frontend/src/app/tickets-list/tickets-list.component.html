@@ -14,7 +14,8 @@
     <mat-checkbox [checked]="selectAll" (change)="toggleSelectAll($event)">
       {{ selectAll ? 'Unselect All' : 'Select All' }}
     </mat-checkbox>
-    <button mat-raised-button color="accent" (click)="openBulkReplyModal()"
+    <button mat-raised-button color="accent"
+            (click)="openBulkReplyModal()"
             [disabled]="selectedTicketIds.size < 2">
       Bulk Reply ({{ selectedTicketIds.size }})
     </button>
@@ -22,17 +23,21 @@
 
   <div id="tickets">
     <mat-nav-list>
-      <mat-list-item *ngFor="let ticket of filteredTickets$ | async; trackBy: trackByTicket" [routerLink]="['tickets', ticket.id]"
+      <mat-list-item *ngFor="let ticket of (filteredTickets$ | async); trackBy: trackByTicket"
+                     [routerLink]="['tickets', ticket.id]"
                      [ngClass]="{'active-link': ticket.selected}">
-        <mat-checkbox [(ngModel)]="ticket.selected" (change)="onTicketSelectionChange(ticket)">
-        </mat-checkbox>
-        <div class="ticket-content">
-          <span class="ticket-subject" matTooltip="{{ ticket.subject }}">
-            {{ ticket.subject }}
-          </span>
-          <span class="ticket-status">
-            {{ ticket.status }}
-          </span>
+        <div class="ticket-row">
+          <mat-checkbox [(ngModel)]="ticket.selected"
+                        (change)="onTicketSelectionChange(ticket)">
+          </mat-checkbox>
+          <div class="ticket-details">
+            <div class="ticket-subject" matTooltip="{{ ticket.subject }}">
+              {{ ticket.subject }}
+            </div>
+            <div class="ticket-status">
+              {{ ticket.status }}
+            </div>
+          </div>
         </div>
       </mat-list-item>
     </mat-nav-list>
