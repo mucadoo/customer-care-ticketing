@@ -13,6 +13,7 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
+      //hard senderId setter through url param
       const senderId = params['senderId'] || 'operator1';
       localStorage.setItem('senderId', senderId);
       console.log(`App initialized with senderId: ${senderId}`);
