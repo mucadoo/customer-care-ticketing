@@ -1,86 +1,91 @@
-# Senior Fullstack Developer Test Response
+# Customer Care Ticketing System
 
-## Task 1: Bulk Send Feature
+A full-stack ticketing system designed for efficient customer support management. This project features a robust backend API built with Fastify and PostgreSQL, and a modern frontend client.
 
-### Assumptions and Rationale:
-- Asynchronous Processing:
-    - Assumed bulk operations could involve processing large numbers of tickets, potentially causing API timeouts or impacting frontend performance if handled synchronously.
-    - Implemented an asynchronous processing solution (BullMQ/Redis) to ensure bulk operations execute efficiently, independently of frontend connectivity or browser state.
+## Project Structure
 
-- Real-time Operator Feedback:
-    - Assumed operators need immediate and continuous updates on the progress of bulk operations to maintain efficiency and situational awareness.
-    - Implemented real-time communication channels (WebSockets/Socket.IO) to deliver timely job-status updates, enabling operators to track progress effortlessly without manual refreshes or page navigation.
+- `server/`: Node.js backend API.
+- `client/`: Angular frontend application.
 
-- Scalability and Future Growth:
-    - Assumed the system might scale significantly in terms of tickets and users, necessitating careful consideration of resource utilization.
-    - Chose a microservices architecture with independent Docker containers for workers, notifications, and APIs to easily accommodate horizontal scaling in response to increased demand.
+## Getting Started
 
-- Concurrency Controls:
-    - Assumed efficient database resource management was critical.
-    - Implemented configurable concurrency limits in the worker service to manage resources efficiently and prevent database overload.
+### Prerequisites
 
-- Authentication and Security:
-    - Assumed operators should only view notifications relevant to their own initiated jobs to maintain operational clarity and data privacy.
-    - Implemented filtering by operator-specific senderId during WebSocket connections, paving the way for straightforward integration of a more robust authentication layer in the future. This ensures operators currently only receive notifications pertinent to their activities, preventing inadvertent access to other operators' bulk job statuses.
+- Node.js (version 22 or later)
+- Docker and Docker Compose (for database management)
+- PostgreSQL (if not using Docker)
 
-- Ticket Resolution State Handling:
-    - Assumed bulk replies must not modify tickets already marked as "resolved".
-    - Implemented explicit checks in job processing logic, where attempts to process already-resolved tickets are safely skipped and counted explicitly as errors.
+### Backend Setup (`server/`)
 
-- UX Considerations (Frontend):
-    - Assumed the need for immediate, intuitive visual feedback for bulk operations.
-    - Chose visual highlights, notifications badges, intuitive status icons, real-time progress tooltips and interactive filters in JobNotificationComponent to deliver a clear and user-friendly experience, reducing operator cognitive load.
+1. **Install Dependencies:**
+   ```bash
+   cd server
+   npm install
+   ```
 
-### Implementation Approach:
+2. **Environment Variables:**
+   Create a `.env` file in the `server` directory and configure your PostgreSQL connection:
+   ```env
+   PGHOST=localhost
+   PGPORT=5432
+   PGUSER=api
+   PGPASSWORD=apiPassword
+   PGDATABASE=api
+   ```
 
-Backend:
-- Created new endpoint (POST /api/v1/tickets/bulk-reply) to handle bulk reply requests, enqueuing jobs via BullMQ (Redis).
-- Utilized BulkReplyWorkerService in a dedicated Docker container for reliable asynchronous job handling.
-- Developed a separate Notification Microservice (JobNotificationSocket) running in its own Docker container using Socket.IO to provide real-time job progress updates.
+3. **Start the Database:**
+   Use Docker Compose to spin up a PostgreSQL instance:
+   ```bash
+   docker compose up -d db
+   ```
 
-Frontend:
-- Enhanced UI for individual and bulk ("Select All") ticket selection in TicketsListComponent.
-- Created a BulkReplyComponent modal for operators to send bulk replies.
-- Implemented dedicated JobNotificationComponent for interactive job status tracking.
-- Integrated WebSockets (JobWebSocketService) connecting to the backend notification microservice for real-time updates.
-- Centralized management of bulk operation statuses via the JobStateService using RxJS.
+4. **Run Migrations:**
+   Apply database schema changes:
+   ```bash
+   npm run migrate:up
+   ```
 
-### Simulating Multiple Operators:
+5. **Seed Data (Optional):**
+   Populate the database with sample ticketing data:
+   ```bash
+   npm run seed
+   ```
 
-By default, the frontend application initializes with senderId set to operator1.
-To simulate other operators, specify the desired senderId as a query parameter in the URL.
+6. **Run the Server:**
+   Start the API in development mode:
+   ```bash
+   npm run serve
+   ```
+   The server will be available at `http://localhost:8000`.
 
-Example usage:
+### Frontend Setup (`client/`)
 
-Default operator:
-- http://localhost:4200/home (uses operator1 by default)
+1. **Install Dependencies:**
+   ```bash
+   cd client
+   npm install
+   ```
 
-Simulating another operator:
-- http://localhost:4200/home?senderId=operator2
+2. **Run the Application:**
+   Start the Angular development server:
+   ```bash
+   npm start
+   ```
+   The application will be accessible at `http://localhost:4200`.
 
-This method allows straightforward testing of real-time job notifications tailored to individual operators.
+## Features
 
----
+- **Ticketing Management:** Create, view, and resolve customer support tickets.
+- **Messaging System:** Real-time (simulated) conversation flow between customers and operators.
+- **Database Seeding:** Quick setup with realistic sample data for testing and development.
+- **Modern Tech Stack:** Built with Fastify, Angular, and PostgreSQL for high performance.
 
-## Task 2: Component Refactoring (Single Responsibility Principle)
+## Key Technologies
 
-Issue:
-Original TicketComponent had multiple unrelated responsibilities, violating SRP.
+- **Backend:** Node.js, Fastify, PostgreSQL, pgtyped, node-pg-migrate.
+- **Frontend:** Angular, TypeScript.
+- **Infrastructure:** Docker.
 
-Refactoring Approach:
-Split responsibilities clearly among components:
-- TicketContainerComponent: Centralizes ticket data fetching and orchestrates interactions between sub-components.
-- TicketDetailsComponent: Displays ticket metadata and manages UI state.
-- TicketMessagesComponent: Responsible solely for fetching and rendering ticket messages.
-- TicketMessageFormComponent: Handles interactions and logic associated with the message form.
+## License
 
----
-
-## Task 3: Bug Fix – Multiple API Requests
-
-Issue:
-Redundant HTTP requests triggered by multiple async pipe subscriptions in the template.
-
-Solution:
-- Implemented RxJS shareReplay(1) operator to cache observable responses, eliminating duplicate API calls.
-- Centralized observable management within TicketContainerComponent, effectively coordinating data flow and reducing backend load.
+This project is licensed under the UNLICENSED license.
