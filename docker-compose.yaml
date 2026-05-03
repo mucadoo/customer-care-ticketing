@@ -1,0 +1,118 @@
+services:
+  db:
+    image: postgres:16-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: api
+      POSTGRES_USER: api
+      POSTGRES_PASSWORD: apiPassword
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "api", "-d", "api"]
+      interval: 3s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  migrate:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./server/migrations:/app/migrations
+    environment:
+      - DATABASE_URL=postgres://api:apiPassword@db:5432/api
+    # Pointing to the internal app migrations folder
+    command: ["npm", "run", "migrate", "--", "up", "-m", "migrations"]
+    depends_on:
+      db:
+        condition: service_healthy
+
+  seed:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    environment:
+      PGHOST: db
+      PGUSER: api
+      PGPASSWORD: apiPassword
+      PGDATABASE: api
+    command: ["npx", "ts-node", "src/seed/index.ts"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+
+  api:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    environment:
+      PGHOST: db
+      PGUSER: api
+      PGPASSWORD: apiPassword
+      PGDATABASE: api
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    ports:
+      - "8000:8000"
+    command: ["npx", "ts-node", "src/index.ts"]
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+
+  worker:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    environment:
+      DATABASE_URL: postgres://api:apiPassword@db:5432/api
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+    # FIXED: Use ts-node instead of dist/
+    command: ["npx", "ts-node", "src/workers/index.ts"]
+    depends_on:
+      - db
+      - redis
+
+  socket:
+    build:
+      context: ./server
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./server:/app
+      - /app/node_modules
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      WS_PORT: "8080"
+    ports:
+      - "8080:8080"
+    command: ["npx", "ts-node", "src/sockets/index.ts"]
+    depends_on:
+      - redis
+
+  frontend:
+    build:
+      context: ./client
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true # Helps with file watching in Docker
+    depends_on:
+      - api
