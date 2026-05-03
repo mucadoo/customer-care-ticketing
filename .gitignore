@@ -1,1 +1,42 @@
-/.idea/
+.idea/
+
+# Node & Build
+node_modules/
+dist/
+tmp/
+out-tsc/
+bazel-out/
+coverage/
+*.log
+npm-debug.log
+yarn-error.log
+
+# IDEs and editors
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.history/*
+
+# Miscellaneous
+.angular/
+.sass-cache/
+connect.lock
+libpeerconnection.log
+testem.log
+typings
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Server specific
+server/.env
+server/.nyc_output/
